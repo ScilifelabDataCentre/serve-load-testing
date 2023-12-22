@@ -1,0 +1,2 @@
+locust>=2.20.0
+requests-html>=0.10.0
