@@ -8,6 +8,8 @@ This repository contains two branches:
 - main (default)
 - develop
 
+Make changes in the develop branch, commit and submit pull requests to merge to main.
+
 ## Setup
 
     cd ./source
@@ -25,11 +27,11 @@ For options, see https://docs.locust.io/en/stable/configuration.html
 
 ## Create tests
 
-Create locust tests in the source/tests directory.
+Create locust tests in the /source/tests directory.
 
 ## Verify the setup by running a simple test
 
-### At the command line, headlessly
+### Running tests using the command line (headlessly)
 
 Run the command:
 
@@ -44,7 +46,7 @@ Run the commands
     cd ./tests
     locust --modern-ui --class-picker -f simple.py
 
-Open a browser tag at URL http://localhost:8089/
+Open a browser tab at URL http://localhost:8089/
 
 Paste in as host
 
@@ -65,4 +67,24 @@ If desired generate html reports by editing the report name in the below command
 ### To run only the API tests
 
     locust -f ./tests/api.py --html ./reports/locust-report-api.html
+
+### To run all tests, execute one of the below commands. Beware, please be nice to the system resources.
+
+The configuration file parameter here is not necessary but is included for extra intelligibility.
+
+    locust --config locust.conf --html ./reports/locust-report-all.html
+
+This executes the same command as above.
+
+    locust --html ./reports/locust-report-all.html
+
+
+## Tests under development
+
+These tests are not yet ready to be used in a load testing session.
+The tests are located under directory /source/tests-dev/
+
+### To run only the AppViewer tests (using user apps as a non-authenticated user)
+
+    locust -f ./tests-dev/appviewer.py --html ./reports/locust-report-appviewer.html --users 1 --run-time 20s
 
