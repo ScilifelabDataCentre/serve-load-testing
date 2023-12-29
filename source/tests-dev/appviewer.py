@@ -1,4 +1,5 @@
-import time
+"""A Locust test file."""
+
 from locust import HttpUser, task, between
 import warnings
 warnings.filterwarnings("ignore")
