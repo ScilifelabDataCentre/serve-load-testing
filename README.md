@@ -88,3 +88,17 @@ The tests are located under directory /source/tests-dev/
 
     locust -f ./tests-dev/appviewer.py --html ./reports/locust-report-appviewer.html --users 1 --run-time 20s
 
+### To run only the test class requiring authentication
+
+These tests require a user account in Serve and a protected page such as a project page.
+
+- Copy the template environment file .env.template as .env
+- Edit the values in the .env file
+
+Set the environment values from the file
+
+    set -o allexport; source .env; set +o allexport
+
+Run the tests
+
+    locust -f ./tests-dev/authenticated.py --html ./reports/locust-report-authenticated.html --users 1 --run-time 10s
