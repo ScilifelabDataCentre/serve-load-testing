@@ -43,8 +43,7 @@ Open the generated html report and verify that there are no errors and that the 
 
 Run the commands
 
-    cd ./tests
-    locust --modern-ui --class-picker -f simple.py
+    locust --config locust-ui.conf --modern-ui --class-picker -f ./tests/simple.py --html ./reports/locust-report-ui.html
 
 Open a browser tab at URL http://localhost:8089/
 
@@ -72,11 +71,11 @@ If desired generate html reports by editing the report name in the below command
 
 The configuration file parameter here is not necessary but is included for extra intelligibility.
 
-    locust --config locust.conf --html ./reports/locust-report-all.html
+    locust --config locust.conf --users 2 --html ./reports/locust-report-all.html
 
 This executes the same command as above.
 
-    locust --html ./reports/locust-report-all.html
+    locust --users 2 --html ./reports/locust-report-all.html
 
 
 ## Tests under development
@@ -102,3 +101,12 @@ Set the environment values from the file
 Run the tests
 
     locust -f ./tests-dev/authenticated.py --html ./reports/locust-report-authenticated.html --users 1 --run-time 10s
+
+
+## To run tests using a Docker base image
+
+Using provided Locust base image. To select which tests to execute, edit the file parameter -f as shown above.
+
+    cd ./source
+
+    docker run -p 8089:8089 -v $PWD:/mnt/locust locustio/locust -f /mnt/locust/tests/simple.py --config /mnt/locust/locust.conf --html /mnt/locust/reports/locust-report-from-docker.html
