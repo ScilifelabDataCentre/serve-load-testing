@@ -31,19 +31,21 @@ Create locust tests in the /source/tests directory.
 
 ## Verify the setup by running a simple test
 
+These tests do not need access to a host (URL) to test against.
+
 ### Running tests using the command line (headlessly)
 
 Run the command:
 
-    locust --headless -f ./tests/simple.py --users 1 --run-time 10s --html ./reports/locust-report-simple.html
+    locust --headless -f ./tests/test_verify_setup.py --users 1 --run-time 10s --html ./reports/locust-report-verify-setup.html
 
 Open the generated html report and verify that there are no errors and that the statistics look reasonable. The report is created under /source/reports/
 
 ### Using the Locust UI web client
 
-Run the commands
+Run the command
 
-    locust --config locust-ui.conf --modern-ui --class-picker -f ./tests/simple.py --html ./reports/locust-report-ui.html
+    locust --config locust-ui.conf --modern-ui --class-picker -f ./tests/test_verify_setup.py --html ./reports/locust-report-verify-setup-ui.html
 
 Open a browser tab at URL http://localhost:8089/
 
@@ -51,31 +53,26 @@ Paste in as host
 
     https://staging.serve-dev.scilifelab.se
 
+## Verify the setup and access to a host (URL)
+
+Run the command:
+
+    locust --headless -f ./tests/test_verify_host.py --users 1 --run-time 10s --html ./reports/locust-report-verify-host.html
+
+Open the generated html report and verify that there are no errors and that the statistics look reasonable. The report is created under /source/reports/
+
+
 ## Running tests
 
-If desired generate html reports by editing the report name in the below commands.
+If desired then generate html reports by editing the report name in the below commands.
 
-### Run tests headlessly
+Move into the source directory if not already there:
 
     cd ./source
 
-### To run only the Website tests
+### To run the Normal test plan/scenario
 
-    locust --headless -f ./tests/website.py --html ./reports/locust-report-website.html --users 2 --run-time 30s
-
-### To run only the API tests
-
-    locust -f ./tests/api.py --html ./reports/locust-report-api.html
-
-### To run all tests, execute one of the below commands. Beware, please be nice to the system resources.
-
-The configuration file parameter here is not necessary but is included for extra intelligibility.
-
-    locust --config locust.conf --users 2 --html ./reports/locust-report-all.html
-
-This executes the same command as above.
-
-    locust --users 2 --html ./reports/locust-report-all.html
+    locust --headless -f ./tests/test_plan_normal.py --html ./reports/locust-report-normal.html --users 2 --run-time 30s
 
 
 ## Tests under development
@@ -85,7 +82,7 @@ The tests are located under directory /source/tests-dev/
 
 ### To run only the AppViewer tests (using user apps as a non-authenticated user)
 
-    locust -f ./tests-dev/appviewer.py --html ./reports/locust-report-appviewer.html --users 1 --run-time 20s
+    locust --headless -f ./tests-dev/appviewer.py --html ./reports/locust-report-appviewer.html --users 1 --run-time 20s
 
 ### To run only the test class requiring authentication
 
@@ -100,7 +97,7 @@ Set the environment values from the file
 
 Run the tests
 
-    locust -f ./tests-dev/authenticated.py --html ./reports/locust-report-authenticated.html --users 1 --run-time 10s
+    locust --headless -f ./tests-dev/authenticated.py --html ./reports/locust-report-authenticated.html --users 1 --run-time 10s
 
 
 ## To run tests using a Docker base image

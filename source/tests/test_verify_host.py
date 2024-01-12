@@ -1,12 +1,13 @@
-"""A Locust test file."""
+"""Locust test file to verify the Locust test framework setup and access to the SUT host."""
 
 from locust import HttpUser, task, between
 import warnings
 warnings.filterwarnings("ignore")
 
 
-class SimpleUser(HttpUser):
-    """ The main purpose of this test user is to verify the setup of the test framework.
+class VerifyHostUser(HttpUser):
+    """ The main purpose of this test user is to verify the setup of the Locust test framework
+        and access to the host.
     """
     wait_time = between(1, 2)
 
