@@ -5,9 +5,6 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-APP_SHINYPROXY = "https://loadtest-shinyproxy2.staging.serve-dev.scilifelab.se/app/loadtest-shinyproxy2"
-
-
 class AppViewerUser(HttpUser):
     """ Simulates a non-authenticated user that uses apps in Serve.
         Note: This test is not completed. The response time statistics
@@ -21,4 +18,10 @@ class AppViewerUser(HttpUser):
 
     @task
     def open_user_app(self):
+        print(f"executing task open_user_app, running on host: {self.host}")
+        # ex: https://loadtest-shinyproxy2.staging.serve-dev.scilifelab.se/app/loadtest-shinyproxy2
+        # from host: https://staging.serve-dev.scilifelab.se
+        APP_SHINYPROXY = self.host.replace("https://", "https://loadtest-shinyproxy2.")
+        APP_SHINYPROXY += "/app/loadtest-shinyproxy2"
+        print(f"making GET request to URL: {APP_SHINYPROXY}")
         self.client.get(APP_SHINYPROXY, name="user-app-shiny-proxy")

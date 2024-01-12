@@ -80,7 +80,9 @@ Move into the source directory if not already there:
 These tests are not yet ready to be used in a load testing session.
 The tests are located under directory /source/tests-dev/
 
-### To run only the AppViewer tests (using user apps as a non-authenticated user)
+### To run only the AppViewer tests
+
+This test uses a non-authenticated user
 
     locust --headless -f ./tests-dev/appviewer.py --html ./reports/locust-report-appviewer.html --users 1 --run-time 20s
 

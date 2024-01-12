@@ -141,6 +141,30 @@ class PowerBaseUser(HttpUser):
 
 
 
+class AppViewerUser(HttpUser):
+    """ Base class for API client system that makes API calls. """
+    abstract = True
+
+    user_type = None
+
+    def on_start(self):
+        """ Called when a User starts running. """
+        self.client.verify = False  # Don't to check if certificate is valid
+
+    # Tasks
+
+    @task
+    def open_user_app(self):
+        print(f"executing task open_user_app, running on host: {self.host}")
+        # ex: https://loadtest-shinyproxy2.staging.serve-dev.scilifelab.se/app/loadtest-shinyproxy2
+        # from host: https://staging.serve-dev.scilifelab.se
+        APP_SHINYPROXY = self.host.replace("https://", "https://loadtest-shinyproxy2.")
+        APP_SHINYPROXY += "/app/loadtest-shinyproxy2"
+        print(f"making GET request to URL: {APP_SHINYPROXY}")
+        self.client.get(APP_SHINYPROXY, name="user-app-shiny-proxy")
+
+
+
 class OpenAPIClientBaseUser(HttpUser):
     """ Base class for API client system that makes API calls. """
     abstract = True
@@ -161,6 +185,6 @@ class OpenAPIClientBaseUser(HttpUser):
     def call_system_version(self):
         self.client.get("/openapi/v1/system-version")
 
-    @task
+    @task(3)
     def get_public_apps(self):
         self.client.get("/openapi/v1/public-apps")
