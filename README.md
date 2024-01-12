@@ -61,7 +61,7 @@ If desired generate html reports by editing the report name in the below command
 
 ### To run only the Website tests
 
-    locust -f ./tests/website.py --html ./reports/locust-report-website.html
+    locust --headless -f ./tests/website.py --html ./reports/locust-report-website.html --users 2 --run-time 30s
 
 ### To run only the API tests
 
