@@ -60,6 +60,7 @@ class AuthenticatedUser(HttpUser):
         # logout_data = dict(username=username, csrfmiddlewaretoken=self.csrftoken)
         self.client.get("/accounts/logout/", name="---ON STOP---LOGOUT")
 
+
     @task
     def browse_homepage(self):
         self.client.get("/home/")
