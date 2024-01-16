@@ -202,11 +202,11 @@ class PowerBaseUser(HttpUser):
             logger.info("Opening project at URL %s", self.project_url)
             self.client.get(self.project_url)
 
-            # TODO: create JupyterLab app
+        # TODO: create JupyterLab app
 
             # TODO: open the app
 
-            # TODO: delete the app
+        # TODO: delete the app
 
             # Delete the project
             self.delete_project()
