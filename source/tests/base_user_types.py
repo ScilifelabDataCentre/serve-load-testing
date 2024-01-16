@@ -125,7 +125,7 @@ class PowerBaseUser(HttpUser):
         print(f"DEBUG: self.csrftoken = {self.csrftoken}")
 
     def login(self):
-        print(f"DEBUG: Logging in as user {self.username}")
+        print(f"DEBUG: Login in as user {self.username}")
         login_data = dict(username=self.username, password=self.password, csrfmiddlewaretoken=self.csrftoken)
         response = self.client.post(
             url="/accounts/login/",
@@ -135,7 +135,7 @@ class PowerBaseUser(HttpUser):
         print(f"DEBUG: login response.status_code = {response.status_code}")
 
     def logout(self):
-        print(f"DEBUG: Logging out user {self.username}")
+        print(f"DEBUG: Login out user {self.username}")
         logout_data = dict(username=self.username, csrfmiddlewaretoken=self.csrftoken)
         self.client.get("/accounts/logout/", name="---ON STOP---LOGOUT")
 

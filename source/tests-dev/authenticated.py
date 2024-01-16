@@ -19,6 +19,8 @@ class AuthenticatedUser(HttpUser):
 
     wait_time = between(2, 3)
 
+    is_authenticated = False
+
     def on_start(self):
         print("DEBUG: on start")
         self.client.verify = False  # Don't check if certificate is valid
@@ -31,19 +33,24 @@ class AuthenticatedUser(HttpUser):
         print(f"DEBUG: self.csrftoken = {self.csrftoken}")
 
     def login(self):
-        print(f"DEBUG: Logging in as user {username}")
+        print(f"DEBUG: Login as user {username}")
+
         login_data = dict(username=username, password=password, csrfmiddlewaretoken=self.csrftoken)
-        response = self.client.post(
-            url="/accounts/login/",
-            data=login_data,
-            headers={"Referer": "foo"},
-            name="---ON START---LOGIN")
-        print(f"DEBUG: login response.status_code = {response.status_code}")
+        
+        with self.client.post(url="/accounts/login/", data=login_data, headers={"Referer": "foo"}, name="---ON START---LOGIN", catch_response=True) as response:
+                print(f"DEBUG: login response.status_code = {response.status_code}, {response.reason}")
+                # if login succeeds then url = /accounts/login/, else /projects/
+                print(f"DEBUG: login response.url = {response.url}")
+                if "/projects" in response.url:
+                    self.is_authenticated = True
+                else:
+                    response.failure(f"Login as user {username} failed. Response URL does not contain /projects")
 
     def logout(self):
-        print(f"DEBUG: Logging out user {username}")
+        print(f"DEBUG: Log out user {username}")
         logout_data = dict(username=username, csrfmiddlewaretoken=self.csrftoken)
         self.client.get("/accounts/logout/", name="---ON STOP---LOGOUT")
+
 
     @task
     def browse_homepage(self):
@@ -51,8 +58,21 @@ class AuthenticatedUser(HttpUser):
 
     @task(2)
     def browse_protected_page(self):
+        if self.is_authenticated == False:
+            print("Skipping test browse_protected_page. User is not authenticated.")
+            return
+
         request_data = dict(username=username, csrfmiddlewaretoken=self.csrftoken)
-        self.client.get(page_rel_url, data=request_data, headers={"Referer": "foo"}, verify=False)
+
+        response = self.client.get(page_rel_url, data=request_data, headers={"Referer": "foo"}, verify=False)
+
+        with self.client.get(page_rel_url, data=request_data, headers={"Referer": "foo"}, verify=False, catch_response=True) as response:
+            print(f"DEBUG: protected page response.status_code = {response.status_code}, {response.reason}")
+            # if login succeeds then url = ?, else ?
+            print(f"DEBUG: protected page response.url = {response.url}")
+            if page_rel_url not in response.url:
+                response.failure("User failed to access protected page.")
+
 
     def on_stop(self):
         print("DEBUG: on stop")
