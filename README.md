@@ -72,7 +72,10 @@ Move into the source directory if not already there:
 
 ### To run the Normal test plan/scenario
 
-    locust --headless -f ./tests/test_plan_normal.py --html ./reports/locust-report-normal.html --users 2 --run-time 30s
+Before running this, run scripts to pre-create test users "locust_test_user_"*
+Use minimum 10 users for the Normal test plan
+
+    locust --headless -f ./tests/test_plan_normal.py --html ./reports/locust-report-normal.html --users 10 --run-time 30s
 
 
 ## Tests under development

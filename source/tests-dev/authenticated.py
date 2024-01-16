@@ -58,7 +58,7 @@ class AuthenticatedUser(HttpUser):
 
     @task(2)
     def browse_protected_page(self):
-        if self.is_authenticated == False:
+        if self.is_authenticated is False:
             print("Skipping test browse_protected_page. User is not authenticated.")
             return
 

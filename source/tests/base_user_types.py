@@ -1,7 +1,11 @@
+import os
 from locust import HttpUser, task, between
 
 import warnings
 warnings.filterwarnings("ignore")
+
+
+SERVE_LOCUST_TEST_USER_PASS = os.environ.get("SERVE_LOCUST_TEST_USER_PASS")
 
 
 
@@ -50,6 +54,8 @@ class VisitingBaseUser(HttpUser):
     def browse_user_guide(self):
         self.client.get("/docs/")
 
+    # TODO: register new user (max once per user instance)
+
 
 
 class PowerBaseUser(HttpUser):
@@ -63,8 +69,9 @@ class PowerBaseUser(HttpUser):
     local_individual_id = 0
 
     username = "NOT_FOUND"
-    password = "NOT_FOUND"
+    password = SERVE_LOCUST_TEST_USER_PASS
 
+    is_authenticated = False
     task_has_run = False
 
     def get_user_id():
@@ -79,44 +86,48 @@ class PowerBaseUser(HttpUser):
         self.client.verify = False  # Don't check if certificate is valid
         self.local_individual_id = PowerBaseUser.get_user_id()
         print(f"ONSTART new user type {self.user_type}, individual {self.local_individual_id}")
-        # TODO: make user id dynamic = self.local_individual_id
-        self.username = "locust_test_user_1@test.uu.net"
+        # TODO: make user id dynamic = f"locust_test_user_{self.local_individual_id}@test.uu.net"
+        self.username = "locust_test_persisted_user@test.uu.net"
 
     # Tasks
 
     @task
     def power_user_task(self):
-        if self.task_has_run:
+        if self.task_has_run is True:
             print(f"Skipping power user task for user {self.local_individual_id}. It has already been run.")
-        else:
-            self.task_has_run = True
+            return
 
-            print(f"executing power user task")
+        self.task_has_run = True
 
-            # Open the home page
-            self.client.get("/home/")
+        print(f"executing power user task")
 
-            # Open the login page and get the csrf token
-            self.get_token()
+        # Open the home page
+        self.client.get("/home/")
 
-            # Login as user locust_test_user_{id}@test.uu.net
-            self.login()
+        # Open the login page and get the csrf token
+        self.get_token()
 
-            # TODO: create project: locust_test_project_new_<id>
+        # Login as user locust_test_user_{id}@test.uu.net
+        self.login()
 
-            # TODO: create JupyterLab app
+        if self.is_authenticated is False:
+            return
 
-            # TODO: open the app
+        # TODO: create project: locust_test_project_new_<id>
 
-            # Open user docs pages
-            self.client.get("/docs/")
+        # TODO: create JupyterLab app
 
-            # TODO: delete the app
+        # TODO: open the app
 
-            # TODO: delete the project
+        # Open user docs pages
+        self.client.get("/docs/")
 
-            # Logout the user
-            self.logout()
+        # TODO: delete the app
+
+        # TODO: delete the project
+
+        # Logout the user
+        self.logout()
 
 
     def get_token(self):
@@ -125,14 +136,18 @@ class PowerBaseUser(HttpUser):
         print(f"DEBUG: self.csrftoken = {self.csrftoken}")
 
     def login(self):
-        print(f"DEBUG: Login in as user {self.username}")
+        print(f"DEBUG: Login as user {self.username}")
+        
         login_data = dict(username=self.username, password=self.password, csrfmiddlewaretoken=self.csrftoken)
-        response = self.client.post(
-            url="/accounts/login/",
-            data=login_data,
-            headers={"Referer": "foo"},
-            name="---ON START---LOGIN")
-        print(f"DEBUG: login response.status_code = {response.status_code}")
+        
+        with self.client.post(url="/accounts/login/", data=login_data, headers={"Referer": "foo"}, name="---ON START---LOGIN", catch_response=True) as response:
+                print(f"DEBUG: login response.status_code = {response.status_code}, {response.reason}")
+                # if login succeeds then url = /accounts/login/, else /projects/
+                print(f"DEBUG: login response.url = {response.url}")
+                if "/projects" in response.url:
+                    self.is_authenticated = True
+                else:
+                    response.failure(f"Login as user {self.username} failed. Response URL does not contain /projects")
 
     def logout(self):
         print(f"DEBUG: Login out user {self.username}")
@@ -142,7 +157,7 @@ class PowerBaseUser(HttpUser):
 
 
 class AppViewerUser(HttpUser):
-    """ Base class for API client system that makes API calls. """
+    """ Base class for app viewer user that opens up a user app. """
     abstract = True
 
     user_type = None
