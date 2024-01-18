@@ -18,6 +18,7 @@ class AppViewerUser(HttpUser):
 
     @task
     def open_user_app(self):
+        """ Note that this approach does not create any pods on k8s. """
         print(f"executing task open_user_app, running on host: {self.host}")
         # ex: https://loadtest-shinyproxy2.staging.serve-dev.scilifelab.se/app/loadtest-shinyproxy2
         # from host: https://staging.serve-dev.scilifelab.se

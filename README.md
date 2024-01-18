@@ -112,3 +112,12 @@ Using provided Locust base image. To select which tests to execute, edit the fil
     cd ./source
 
     docker run -p 8089:8089 -v $PWD:/mnt/locust locustio/locust -f /mnt/locust/tests/simple.py --config /mnt/locust/locust.conf --html /mnt/locust/reports/locust-report-from-docker.html
+
+
+## Use the shell script to run tests
+
+```
+$ cd ./source
+$ chmod +x run_test_plan.sh
+$ ./run_test_plan.sh
+```
