@@ -379,11 +379,21 @@ class AppViewerUser(HttpUser):
 
     @task
     def open_user_app(self):
+        """ Note that this approach does not actually create any resources on the k8s cluster. """
         print(f"executing task open_user_app, running on host: {self.host}")
-        # ex: https://loadtest-shinyproxy2.staging.serve-dev.scilifelab.se/app/loadtest-shinyproxy2
-        # from host: https://staging.serve-dev.scilifelab.se
-        APP_SHINYPROXY = self.host.replace("https://", "https://loadtest-shinyproxy2.")
-        APP_SHINYPROXY += "/app/loadtest-shinyproxy2"
+        APP_SHINYPROXY = "UNSET"
+        if "staging" in self.host:
+            # Staging
+            # ex: https://loadtest-shinyproxy2.staging.serve-dev.scilifelab.se/app/loadtest-shinyproxy2
+            # from host: https://staging.serve-dev.scilifelab.se
+            APP_SHINYPROXY = self.host.replace("https://", "https://loadtest-shinyproxy2.")
+            APP_SHINYPROXY += "/app/loadtest-shinyproxy2"
+        elif "serve.scilifelab.se" in self.host:
+            # Production
+            # ex: https://adhd-medication-sweden.serve.scilifelab.se/app/adhd-medication-sweden
+            APP_SHINYPROXY = self.host.replace("https://", "https://adhd-medication-sweden.")
+            APP_SHINYPROXY += "/app/adhd-medication-sweden"
+
         print(f"making GET request to URL: {APP_SHINYPROXY}")
         self.client.get(APP_SHINYPROXY, name="user-app-shiny-proxy")
 
