@@ -114,7 +114,18 @@ Using provided Locust base image. To select which tests to execute, edit the fil
     docker run -p 8089:8089 -v $PWD:/mnt/locust locustio/locust -f /mnt/locust/tests/simple.py --config /mnt/locust/locust.conf --html /mnt/locust/reports/locust-report-from-docker.html
 
 
+## To run k8s pod-creating tests
+
+The Locust app-viewer tests do not currently create pods on the cluster. In order to run such tests, configure and execute appviewer_requestshtml.py
+
+    python3 ./tests-dev/appviewer_requestshtml.py
+
+
 ## Use the shell script to run tests
+
+The shell script can be used to execute multiple simultaneous types of tests (such as Locust plus a scripted test).
+
+Edit the configuration in locust.conf and in .env. If running the appviewer_requestshtml.py module, then also configure settings in this file.
 
 ```
 $ cd ./source
