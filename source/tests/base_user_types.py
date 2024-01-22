@@ -135,9 +135,9 @@ class PowerBaseUser(HttpUser):
         self.client.verify = False  # Don't check if certificate is valid
         self.local_individual_id = PowerBaseUser.get_user_id()
         print(f"ONSTART new user type {self.user_type}, individual {self.local_individual_id}")
-        # TODO: make user id dynamic = f"locust_test_user_{self.local_individual_id}@test.uu.net"
-        self.username = "locust_test_persisted_user@test.uu.net"
-        #self.username = 
+        # Use the pre-created test users for this: f"locust_test_user_{self.local_individual_id}@test.uu.net"
+        self.username = f"locust_test_user_{self.local_individual_id}@test.uu.net"
+        #self.username = "locust_test_persisted_user@test.uu.net"
 
     # Tasks
 
@@ -278,7 +278,13 @@ class AppViewerUser(HttpUser):
         """ Note that this approach does not actually create any resources on the k8s cluster. """
         print(f"executing task open_user_app, running on host: {self.host}")
         APP_SHINYPROXY = "UNSET"
-        if "staging" in self.host:
+        if self.host == "https://serve-dev.scilifelab.se":
+            # Dev
+            # ex: https://loadtest-shinyproxy.staging.serve-dev.scilifelab.se/app/loadtest-shinyproxy
+            # from host: https://staging.serve-dev.scilifelab.se
+            APP_SHINYPROXY = self.host.replace("https://", "https://loadtest-shinyproxy.")
+            APP_SHINYPROXY += "/app/loadtest-shinyproxy"
+        elif "staging" in self.host:
             # Staging
             # ex: https://loadtest-shinyproxy2.staging.serve-dev.scilifelab.se/app/loadtest-shinyproxy2
             # from host: https://staging.serve-dev.scilifelab.se
