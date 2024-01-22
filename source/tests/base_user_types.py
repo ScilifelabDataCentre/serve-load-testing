@@ -279,6 +279,47 @@ class PowerBaseUser(HttpUser):
                 # logger.debug(response.content)
                 response.failure("Delete project failed. Response URL does not contain /projects.")
 
+    def create_project(self, project_name):
+        # Update the csrf token
+        self.get_token("/projects/create?template=Default project")
+
+        project_data = dict(
+            name = project_name,
+            template_id = 1,
+            description = "Project desc",
+            csrfmiddlewaretoken=self.csrftoken
+        )
+
+        with self.client.post(url="/projects/create?template=Default%20project", data=project_data, headers={"Referer": "foo"}, name="---CREATE-NEW-PROJECT", catch_response=True) as response:
+            print(f"DEBUG: create project response.status_code = {response.status_code}, {response.reason}")
+            # if succeeds then url = /<username>/<project-name>
+            print(f"DEBUG: create project response.url = {response.url}")
+            if self.username in response.url and project_name in response.url:
+                print(f"Successfully created project {project_name}")
+                self.project_url = response.url
+            else:
+                print(response.content)
+                response.failure(f"Create project failed. Response URL does not contain username and project name.")
+
+    def delete_project(self):
+        # Update the csrf token
+        self.get_token("/projects")
+
+        delete_project_url = f"{self.project_url}/delete"
+        print(f"DEBUG: Deleting the project at URL: {delete_project_url}")
+
+        delete_project_data = dict(csrfmiddlewaretoken=self.csrftoken)
+
+        with self.client.get(url=delete_project_url, data=delete_project_data, headers={"Referer": "foo"}, name="---DELETE-PROJECT", catch_response=True) as response:
+            print(f"DEBUG: delete project response.status_code = {response.status_code}, {response.reason}")
+            # if succeeds then url = /projects/
+            print(f"DEBUG: delete project response.url = {response.url}")
+            if "/projects" in response.url:
+                print(f"Successfully deleted project at {self.project_url}")
+            else:
+                print(response.content)
+                response.failure(f"Delete project failed. Response URL does not contain /projects.")
+
     def login(self):
         logger.info("Login as user %s", self.username)
 
