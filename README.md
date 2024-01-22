@@ -64,18 +64,32 @@ Open the generated html report and verify that there are no errors and that the 
 
 ## Running tests
 
-If desired then generate html reports by editing the report name in the below commands.
+### Prepare for running tests
+
+Before running the tests, run scripts to pre-create test users "locust_test_user_"*
 
 Move into the source directory if not already there:
 
     cd ./source
 
+- Copy the template environment file .env.template as .env
+- Edit the values in the .env file
+
+Set the environment values from the file
+
+    set -o allexport; source .env; set +o allexport
+
+If desired then generate html reports by editing the report name in the below commands.
+
 ### To run the Normal test plan/scenario
 
-Before running this, run scripts to pre-create test users "locust_test_user_"*
 Use minimum 10 users for the Normal test plan
 
     locust --headless -f ./tests/test_plan_normal.py --html ./reports/locust-report-normal.html --users 10 --run-time 30s
+
+### To run the Classroom test plan/scenario
+
+    locust --headless -f ./tests/test_plan_classroom.py --html ./reports/locust-report-classroom.html --users 1 --run-time 30s
 
 
 ## Tests under development
@@ -92,13 +106,6 @@ This test uses a non-authenticated user
 ### To run only the test class requiring authentication
 
 These tests require a user account in Serve and a protected page such as a project page.
-
-- Copy the template environment file .env.template as .env
-- Edit the values in the .env file
-
-Set the environment values from the file
-
-    set -o allexport; source .env; set +o allexport
 
 Run the tests
 

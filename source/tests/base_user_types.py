@@ -6,6 +6,7 @@ warnings.filterwarnings("ignore")
 
 
 SERVE_LOCUST_TEST_USER_PASS = os.environ.get("SERVE_LOCUST_TEST_USER_PASS")
+SERVE_LOCUST_DO_CREATE_OBJECTS = os.environ.get("SERVE_LOCUST_DO_CREATE_OBJECTS", "False")
 
 
 
@@ -60,6 +61,10 @@ class VisitingBaseUser(HttpUser):
     @task
     def register_user(self):
         """ Register this user as a new user account. """
+        if SERVE_LOCUST_DO_CREATE_OBJECTS is False or SERVE_LOCUST_DO_CREATE_OBJECTS == "False":
+            print("Skipping register new user because env var SERVE_LOCUST_DO_CREATE_OBJECTS == False")
+            return
+
         if self.user_has_registered is False:
 
             # Only attempt to register once
@@ -113,6 +118,8 @@ class PowerBaseUser(HttpUser):
     username = "NOT_FOUND"
     password = SERVE_LOCUST_TEST_USER_PASS
 
+    project_url = "UNSET"
+
     is_authenticated = False
     task_has_run = False
 
@@ -130,6 +137,7 @@ class PowerBaseUser(HttpUser):
         print(f"ONSTART new user type {self.user_type}, individual {self.local_individual_id}")
         # TODO: make user id dynamic = f"locust_test_user_{self.local_individual_id}@test.uu.net"
         self.username = "locust_test_persisted_user@test.uu.net"
+        #self.username = 
 
     # Tasks
 
@@ -155,27 +163,82 @@ class PowerBaseUser(HttpUser):
         if self.is_authenticated is False:
             return
 
-        # TODO: create project: locust_test_project_new_<id>
-
-        # TODO: create JupyterLab app
-
-        # TODO: open the app
-
         # Open user docs pages
         self.client.get("/docs/")
 
-        # TODO: delete the app
+        if SERVE_LOCUST_DO_CREATE_OBJECTS is False or SERVE_LOCUST_DO_CREATE_OBJECTS == "False":
+            print("Skipping task steps that create and delete projects and apps because env var SERVE_LOCUST_DO_CREATE_OBJECTS == False")
+            return
+        else:
+            print(f"DEBUG: Creating and deleting projects and apps as user {self.username}")
+            
+            # Create project: locust_test_project_new_<id>
+            project_name = f"locust_test_project_new_{self.local_individual_id}"
+            self.create_project(project_name)
+            
+            # Open the project
+            print(f"Opening project at URL {self.project_url}")
+            self.client.get(self.project_url)
 
-        # TODO: delete the project
+            # TODO: create JupyterLab app
+
+            # TODO: open the app
+
+            # TODO: delete the app
+
+            # Delete the project
+            self.delete_project()
+           
 
         # Logout the user
         self.logout()
 
 
-    def get_token(self):
-        self.client.get("/accounts/login/")
+    def get_token(self, relative_url="/accounts/login/"):
+        self.client.get(relative_url)
         self.csrftoken = self.client.cookies['csrftoken']
         print(f"DEBUG: self.csrftoken = {self.csrftoken}")
+
+    def create_project(self, project_name):
+        # Update the csrf token
+        self.get_token("/projects/create?template=Default project")
+
+        project_data = dict(
+            name = project_name,
+            template_id = 1,
+            description = "Project desc",
+            csrfmiddlewaretoken=self.csrftoken
+        )
+
+        with self.client.post(url="/projects/create?template=Default%20project", data=project_data, headers={"Referer": "foo"}, name="---CREATE-NEW-PROJECT", catch_response=True) as response:
+            print(f"DEBUG: create project response.status_code = {response.status_code}, {response.reason}")
+            # if succeeds then url = /<username>/<project-name>
+            print(f"DEBUG: create project response.url = {response.url}")
+            if self.username in response.url and project_name in response.url:
+                print(f"Successfully created project {project_name}")
+                self.project_url = response.url
+            else:
+                print(response.content)
+                response.failure(f"Create project failed. Response URL does not contain username and project name.")
+
+    def delete_project(self):
+        # Update the csrf token
+        self.get_token("/projects")
+
+        delete_project_url = f"{self.project_url}/delete"
+        print(f"DEBUG: Deleting the project at URL: {delete_project_url}")
+
+        delete_project_data = dict(csrfmiddlewaretoken=self.csrftoken)
+
+        with self.client.get(url=delete_project_url, data=delete_project_data, headers={"Referer": "foo"}, name="---DELETE-PROJECT", catch_response=True) as response:
+            print(f"DEBUG: delete project response.status_code = {response.status_code}, {response.reason}")
+            # if succeeds then url = /projects/
+            print(f"DEBUG: delete project response.url = {response.url}")
+            if "/projects" in response.url:
+                print(f"Successfully deleted project at {self.project_url}")
+            else:
+                print(response.content)
+                response.failure(f"Delete project failed. Response URL does not contain /projects.")
 
     def login(self):
         print(f"DEBUG: Login as user {self.username}")
