@@ -17,4 +17,4 @@ class VerifyLocustUser(HttpUser):
 
     @task
     def verify_task(self):
-        print(f"executing simple task verify_task")
+        print("executing simple task verify_task")

@@ -14,12 +14,13 @@ class VisitingBaseUser(HttpUser):
 
     # abstract = True
 
-    user_type = None
+    user_type = ""
     user_individual_id = 0
     local_individual_id = 0
     user_has_registered = False
 
-    def get_user_id():
+    @classmethod
+    def get_user_id(cls):
         """Increments the class property user_individual_id.
         Used to assign a unique id to each individual of this user type.
         """
@@ -30,9 +31,8 @@ class VisitingBaseUser(HttpUser):
         """Called when a User starts running."""
         self.client.verify = False  # Don't check if certificate is valid
         self.local_individual_id = VisitingBaseUser.get_user_id()
-        print(
-            f"ONSTART new user type {self.user_type}, individual {self.local_individual_id}"
-        )
+        print(f"ONSTART new user type {self.user_type}, individual {self.local_individual_id}")
+        self.email = "UNSET"
 
     # Tasks
 
@@ -72,9 +72,7 @@ class VisitingBaseUser(HttpUser):
                 name="---REGISTER-NEW-USER-ACCOUNT",
                 catch_response=True,
             ) as response:
-                print(
-                    f"DEBUG: signup response.status_code = {response.status_code}, {response.reason}"
-                )
+                print(f"DEBUG: signup response.status_code = {response.status_code}, {response.reason}")
                 # if login succeeds then url = /accounts/login/
                 print(f"DEBUG: signup response.url = {response.url}")
                 if "/accounts/login" in response.url:

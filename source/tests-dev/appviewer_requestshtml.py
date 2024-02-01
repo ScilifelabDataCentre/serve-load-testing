@@ -48,9 +48,7 @@ def apps_runner(n_requests: int = 1):
     """
 
     if n_requests > MAX_APPS_PER_APP_TYPE_LIMIT:
-        raise Exception(
-            f"Too many instances of user apps requested to be opened. Max = {MAX_APPS_PER_APP_TYPE_LIMIT}"
-        )
+        raise Exception(f"Too many instances of user apps requested to be opened. Max = {MAX_APPS_PER_APP_TYPE_LIMIT}")
 
     start_time = time()
     n_fails = 0
@@ -64,9 +62,7 @@ def apps_runner(n_requests: int = 1):
             print(f"Iteration: {i}")
             try:
                 response = open_user_app_sync(url)
-                print(
-                    f"DEBUG: open_user_app_sync response = {response.status_code}, {response.reason}"
-                )
+                print(f"DEBUG: open_user_app_sync response = {response.status_code}, {response.reason}")
                 # print(response.content)
             except Exception as ex:
                 n_fails += 1
@@ -77,9 +73,7 @@ def apps_runner(n_requests: int = 1):
         sleep(DELAY_BETWEEN_USER_APP_TYPES_SECONDS)
 
     duration_s = time() - start_time
-    print(
-        f"Duration (sec) for opening {n_requests} user apps = {duration_s}. Nr failures = {n_fails}"
-    )
+    print(f"Duration (sec) for opening {n_requests} user apps = {duration_s}. Nr failures = {n_fails}")
 
 
 def open_user_app_sync(url: str):

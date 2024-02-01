@@ -1,7 +1,11 @@
 """Locust test file defining the test plan scenario for the classroom load."""
 
-from base_user_types import (AppViewerUser, OpenAPIClientBaseUser,
-                             PowerBaseUser, VisitingBaseUser)
+from base_user_types import (
+    AppViewerUser,
+    OpenAPIClientBaseUser,
+    PowerBaseUser,
+    VisitingBaseUser,
+)
 from locust import between
 
 
