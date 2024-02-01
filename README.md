@@ -23,7 +23,7 @@ Make changes in the develop branch, commit and submit pull requests to merge to 
 ## Configuration options
 
 To configure the test runs, use the Locust configuration file ./source/locust.conf
-For options, see https://docs.locust.io/en/stable/configuration.html
+For options, see the [Locust docs](https://docs.locust.io/en/stable/configuration.html)
 
 ## Create tests
 
