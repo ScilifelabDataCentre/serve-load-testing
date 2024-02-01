@@ -284,14 +284,22 @@ class PowerBaseUser(HttpUser):
         self.get_token("/projects/create?template=Default project")
 
         project_data = dict(
-            name = project_name,
-            template_id = 1,
-            description = "Project desc",
-            csrfmiddlewaretoken=self.csrftoken
+            name=project_name,
+            template_id=1,
+            description="Project desc",
+            csrfmiddlewaretoken=self.csrftoken,
         )
 
-        with self.client.post(url="/projects/create?template=Default%20project", data=project_data, headers={"Referer": "foo"}, name="---CREATE-NEW-PROJECT", catch_response=True) as response:
-            print(f"DEBUG: create project response.status_code = {response.status_code}, {response.reason}")
+        with self.client.post(
+            url="/projects/create?template=Default%20project",
+            data=project_data,
+            headers={"Referer": "foo"},
+            name="---CREATE-NEW-PROJECT",
+            catch_response=True,
+        ) as response:
+            print(
+                f"DEBUG: create project response.status_code = {response.status_code}, {response.reason}"
+            )
             # if succeeds then url = /<username>/<project-name>
             print(f"DEBUG: create project response.url = {response.url}")
             if self.username in response.url and project_name in response.url:
@@ -299,7 +307,9 @@ class PowerBaseUser(HttpUser):
                 self.project_url = response.url
             else:
                 print(response.content)
-                response.failure(f"Create project failed. Response URL does not contain username and project name.")
+                response.failure(
+                    f"Create project failed. Response URL does not contain username and project name."
+                )
 
     def delete_project(self):
         # Update the csrf token
@@ -310,15 +320,25 @@ class PowerBaseUser(HttpUser):
 
         delete_project_data = dict(csrfmiddlewaretoken=self.csrftoken)
 
-        with self.client.get(url=delete_project_url, data=delete_project_data, headers={"Referer": "foo"}, name="---DELETE-PROJECT", catch_response=True) as response:
-            print(f"DEBUG: delete project response.status_code = {response.status_code}, {response.reason}")
+        with self.client.get(
+            url=delete_project_url,
+            data=delete_project_data,
+            headers={"Referer": "foo"},
+            name="---DELETE-PROJECT",
+            catch_response=True,
+        ) as response:
+            print(
+                f"DEBUG: delete project response.status_code = {response.status_code}, {response.reason}"
+            )
             # if succeeds then url = /projects/
             print(f"DEBUG: delete project response.url = {response.url}")
             if "/projects" in response.url:
                 print(f"Successfully deleted project at {self.project_url}")
             else:
                 print(response.content)
-                response.failure(f"Delete project failed. Response URL does not contain /projects.")
+                response.failure(
+                    f"Delete project failed. Response URL does not contain /projects."
+                )
 
     def login(self):
         logger.info("Login as user %s", self.username)
@@ -413,37 +433,42 @@ class AppViewerUser(HttpUser):
     user_type = None
 
     def on_start(self):
-        """ Called when a User starts running. """
+        """Called when a User starts running."""
         self.client.verify = False  # Don't to check if certificate is valid
 
     # Tasks
 
     @task
     def open_user_app(self):
-        """ Note that this approach does not actually create any resources on the k8s cluster. """
+        """Note that this approach does not actually create any resources on the k8s cluster."""
         print(f"executing task open_user_app, running on host: {self.host}")
         APP_SHINYPROXY = "UNSET"
         if self.host == "https://serve-dev.scilifelab.se":
             # Dev
             # ex: https://loadtest-shinyproxy.staging.serve-dev.scilifelab.se/app/loadtest-shinyproxy
             # from host: https://staging.serve-dev.scilifelab.se
-            APP_SHINYPROXY = self.host.replace("https://", "https://loadtest-shinyproxy.")
+            APP_SHINYPROXY = self.host.replace(
+                "https://", "https://loadtest-shinyproxy."
+            )
             APP_SHINYPROXY += "/app/loadtest-shinyproxy"
         elif "staging" in self.host:
             # Staging
             # ex: https://loadtest-shinyproxy2.staging.serve-dev.scilifelab.se/app/loadtest-shinyproxy2
             # from host: https://staging.serve-dev.scilifelab.se
-            APP_SHINYPROXY = self.host.replace("https://", "https://loadtest-shinyproxy2.")
+            APP_SHINYPROXY = self.host.replace(
+                "https://", "https://loadtest-shinyproxy2."
+            )
             APP_SHINYPROXY += "/app/loadtest-shinyproxy2"
         elif "serve.scilifelab.se" in self.host:
             # Production
             # ex: https://adhd-medication-sweden.serve.scilifelab.se/app/adhd-medication-sweden
-            APP_SHINYPROXY = self.host.replace("https://", "https://adhd-medication-sweden.")
+            APP_SHINYPROXY = self.host.replace(
+                "https://", "https://adhd-medication-sweden."
+            )
             APP_SHINYPROXY += "/app/adhd-medication-sweden"
 
         print(f"making GET request to URL: {APP_SHINYPROXY}")
         self.client.get(APP_SHINYPROXY, name="user-app-shiny-proxy")
-
 
 
 class OpenAPIClientBaseUser(HttpUser):

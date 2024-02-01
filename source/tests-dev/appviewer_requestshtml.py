@@ -52,7 +52,9 @@ def apps_runner(n_requests: int = 1):
     """
 
     if n_requests > MAX_APPS_PER_APP_TYPE_LIMIT:
-        raise Exception(f"Too many instances of user apps requested to be opened. Max = {MAX_APPS_PER_APP_TYPE_LIMIT}")
+        raise Exception(
+            f"Too many instances of user apps requested to be opened. Max = {MAX_APPS_PER_APP_TYPE_LIMIT}"
+        )
 
     start_time = time()
     n_fails = 0

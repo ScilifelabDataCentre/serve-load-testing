@@ -60,7 +60,6 @@ class AuthenticatedUser(HttpUser):
         # logout_data = dict(username=username, csrfmiddlewaretoken=self.csrftoken)
         self.client.get("/accounts/logout/", name="---ON STOP---LOGOUT")
 
-
     @task
     def browse_homepage(self):
         self.client.get("/home/")
@@ -73,7 +72,9 @@ class AuthenticatedUser(HttpUser):
 
         request_data = dict(username=username, csrfmiddlewaretoken=self.csrftoken)
 
-        response = self.client.get(page_rel_url, data=request_data, headers={"Referer": "foo"}, verify=False)
+        response = self.client.get(
+            page_rel_url, data=request_data, headers={"Referer": "foo"}, verify=False
+        )
 
         with self.client.get(
             page_rel_url,
