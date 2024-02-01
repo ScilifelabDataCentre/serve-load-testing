@@ -7,10 +7,11 @@ Note that shiny proxy pods are configured with
 - heartbeat-timeout=60s
 """
 
-from time import time, sleep
+import warnings
+from time import sleep, time
+
 import requests
 from requests_html import HTMLSession
-import warnings
 
 warnings.filterwarnings("ignore")
 

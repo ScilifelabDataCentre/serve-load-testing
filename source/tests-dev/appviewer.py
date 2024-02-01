@@ -1,7 +1,8 @@
 """A Locust test file."""
 
-from locust import HttpUser, task, between
 import warnings
+
+from locust import HttpUser, between, task
 
 warnings.filterwarnings("ignore")
 

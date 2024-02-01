@@ -1,6 +1,6 @@
-from locust import HttpUser, task
-
 import warnings
+
+from locust import HttpUser, task
 
 warnings.filterwarnings("ignore")
 

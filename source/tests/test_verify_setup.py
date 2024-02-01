@@ -1,7 +1,8 @@
 """Locust test file to verify the Locust test framework setup."""
 
-from locust import HttpUser, task, between
 import warnings
+
+from locust import HttpUser, between, task
 
 warnings.filterwarnings("ignore")
 

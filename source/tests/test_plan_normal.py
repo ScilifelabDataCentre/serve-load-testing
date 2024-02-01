@@ -1,12 +1,8 @@
 """Locust test file defining the test plan scenario for normal load."""
 
+from base_user_types import (AppViewerUser, OpenAPIClientBaseUser,
+                             PowerBaseUser, VisitingBaseUser)
 from locust import between
-from base_user_types import (
-    VisitingBaseUser,
-    PowerBaseUser,
-    AppViewerUser,
-    OpenAPIClientBaseUser,
-)
 
 
 class VisitingNormalUser(VisitingBaseUser):
