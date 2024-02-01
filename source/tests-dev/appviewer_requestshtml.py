@@ -10,7 +10,6 @@ Note that shiny proxy pods are configured with
 import warnings
 from time import sleep, time
 
-import requests
 from requests_html import HTMLSession
 
 warnings.filterwarnings("ignore")
