@@ -69,7 +69,7 @@ class AuthenticatedUser(HttpUser):
         with self.client.get(page_rel_url, data=request_data, headers={"Referer": "foo"}, verify=False, catch_response=True) as response:
             print(f"DEBUG: protected page response.status_code = {response.status_code}, {response.reason}")
             # if login succeeds then url = ?, else ?
-            print(f"DEBUG: protected page response.url = {response.url}")
+            print(f"DEBUG: protected page {response.url=}")
             if page_rel_url not in response.url:
                 response.failure("User failed to access protected page.")
 
