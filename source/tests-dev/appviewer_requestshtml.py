@@ -73,10 +73,11 @@ def apps_runner(n_requests: int = 1):
     print(f"Duration (sec) for opening {n_requests} user apps = {duration_s}. Nr failures = {n_fails}")
 
 
-def open_user_app_sync(url):
-    """ Opens a user app that requires js support as an anonymous user.
+def open_user_app_sync(url: str):
+    """
+        Opens a user app that requires js support as an anonymous user.
         This results in a pod created on k8s when run via module.
-        :param str url: The app URL.
+        :param url: The app URL.
     """
     print(f"DEBUG: Making a GET request to url {url}")
     session = HTMLSession(verify=False)
