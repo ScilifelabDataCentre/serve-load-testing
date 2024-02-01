@@ -1,6 +1,9 @@
+import logging
 import warnings
 
 from locust import HttpUser, task
+
+logger = logging.getLogger(__name__)
 
 warnings.filterwarnings("ignore")
 
@@ -31,7 +34,7 @@ class VisitingBaseUser(HttpUser):
         """Called when a User starts running."""
         self.client.verify = False  # Don't check if certificate is valid
         self.local_individual_id = VisitingBaseUser.get_user_id()
-        print(f"ONSTART new user type {self.user_type}, individual {self.local_individual_id}")
+        logger.info("ONSTART new user type %s, individual %s", self.user_type, self.local_individual_id)
         self.email = "UNSET"
 
     # Tasks
@@ -48,7 +51,7 @@ class VisitingBaseUser(HttpUser):
             self.user_has_registered = True
 
             self.email = f"locust_test_user_created_by_testrun_{self.local_individual_id}@test.uu.net"
-            print(f"Registering new user account using email {self.email}")
+            logger.info("Registering new user account using email %s", self.email)
 
             self.get_token()
 
@@ -72,13 +75,13 @@ class VisitingBaseUser(HttpUser):
                 name="---REGISTER-NEW-USER-ACCOUNT",
                 catch_response=True,
             ) as response:
-                print(f"DEBUG: signup response.status_code = {response.status_code}, {response.reason}")
-                # if login succeeds then url = /accounts/login/
-                print(f"DEBUG: signup response.url = {response.url}")
+                logger.debug("signup response.status_code = %s, %s", response.status_code, response.reason)
+                # If login succeeds then url = /accounts/login/
+                logger.debug("signup response.url = %s", response.url)
                 if "/accounts/login" in response.url:
                     self.user_has_registered = True
                 else:
-                    print(response.content)
+                    logger.info(response.content)
                     response.failure(
                         f"Register as new user {self.email} failed. Response URL does not contain /accounts/login"
                     )
@@ -86,4 +89,4 @@ class VisitingBaseUser(HttpUser):
     def get_token(self):
         self.client.get("/signup/")
         self.csrftoken = self.client.cookies["csrftoken"]
-        print(f"DEBUG: self.csrftoken = {self.csrftoken}")
+        logger.debug("self.csrftoken = %s", self.csrftoken)

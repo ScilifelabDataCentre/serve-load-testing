@@ -1,8 +1,11 @@
 """A Locust test file."""
 
+import logging
 import warnings
 
 from locust import HttpUser, between, task
+
+logger = logging.getLogger(__name__)
 
 warnings.filterwarnings("ignore")
 
@@ -22,10 +25,10 @@ class AppViewerUser(HttpUser):
     @task
     def open_user_app(self):
         """Note that this approach does not create any pods on k8s."""
-        print(f"executing task open_user_app, running on host: {self.host}")
+        logger.info("executing task open_user_app, running on host: %s", self.host)
         # ex: https://loadtest-shinyproxy2.staging.serve-dev.scilifelab.se/app/loadtest-shinyproxy2
         # from host: https://staging.serve-dev.scilifelab.se
         APP_SHINYPROXY = self.host.replace("https://", "https://loadtest-shinyproxy2.")
         APP_SHINYPROXY += "/app/loadtest-shinyproxy2"
-        print(f"making GET request to URL: {APP_SHINYPROXY}")
+        logger.info("making GET request to URL: %s", APP_SHINYPROXY)
         self.client.get(APP_SHINYPROXY, name="user-app-shiny-proxy")

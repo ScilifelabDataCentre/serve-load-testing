@@ -1,7 +1,10 @@
+import logging
 import os
 import warnings
 
 from locust import HttpUser, between, task
+
+logger = logging.getLogger(__name__)
 
 warnings.filterwarnings("ignore")
 
@@ -36,7 +39,7 @@ class VisitingBaseUser(HttpUser):
         """Called when a User starts running."""
         self.client.verify = False  # Don't check if certificate is valid
         self.local_individual_id = VisitingBaseUser.get_user_id()
-        print(f"ONSTART new user type {self.user_type}, individual {self.local_individual_id}")
+        logger.info("ONSTART new user type %s, individual %s", self.user_type, self.local_individual_id)
 
     # Tasks
 
@@ -64,7 +67,7 @@ class VisitingBaseUser(HttpUser):
     def register_user(self):
         """Register this user as a new user account."""
         if SERVE_LOCUST_DO_CREATE_OBJECTS is False or SERVE_LOCUST_DO_CREATE_OBJECTS == "False":
-            print("Skipping register new user because env var SERVE_LOCUST_DO_CREATE_OBJECTS == False")
+            logger.debug("Skipping register new user because env var SERVE_LOCUST_DO_CREATE_OBJECTS == False")
             return
 
         if self.user_has_registered is False:
@@ -96,13 +99,13 @@ class VisitingBaseUser(HttpUser):
                 name="---REGISTER-NEW-USER-ACCOUNT",
                 catch_response=True,
             ) as response:
-                print(f"DEBUG: signup response.status_code = {response.status_code}, {response.reason}")
-                # if login succeeds then url = /accounts/login/
-                print(f"DEBUG: signup response.url = {response.url}")
+                logger.debug("signup response.status_code = %s, %s", response.status_code, response.reason)
+                # If login succeeds then url = /accounts/login/
+                logger.debug("signup response.url = %s", response.url)
                 if "/accounts/login" in response.url:
                     self.user_has_registered = True
                 else:
-                    print(response.content)
+                    logger.debug(response.content)
                     response.failure(
                         f"Register as new user {self.email} failed. Response URL does not contain /accounts/login"
                     )
@@ -110,7 +113,7 @@ class VisitingBaseUser(HttpUser):
     def get_token(self):
         self.client.get("/signup/")
         self.csrftoken = self.client.cookies["csrftoken"]
-        print(f"DEBUG: self.csrftoken = {self.csrftoken}")
+        logger.debug("self.csrftoken = %s", self.csrftoken)
 
 
 class PowerBaseUser(HttpUser):
@@ -144,7 +147,7 @@ class PowerBaseUser(HttpUser):
         """Called when a User starts running."""
         self.client.verify = False  # Don't check if certificate is valid
         self.local_individual_id = PowerBaseUser.get_user_id()
-        print(f"ONSTART new user type {self.user_type}, individual {self.local_individual_id}")
+        logger.info("ONSTART new user type %s, individual %s", self.user_type, self.local_individual_id)
         # Use the pre-created test users for this: f"locust_test_user_{self.local_individual_id}@test.uu.net"
         self.username = f"locust_test_user_{self.local_individual_id}@test.uu.net"
         # self.username = "locust_test_persisted_user@test.uu.net"
@@ -154,12 +157,12 @@ class PowerBaseUser(HttpUser):
     @task
     def power_user_task(self):
         if self.task_has_run is True:
-            print(f"Skipping power user task for user {self.local_individual_id}. It has already been run.")
+            logger.debug("Skipping power user task for user %s. It has already been run.", self.local_individual_id)
             return
 
         self.task_has_run = True
 
-        print("executing power user task")
+        logger.info("executing power user task")
 
         # Open the home page
         self.client.get("/home/")
@@ -177,20 +180,20 @@ class PowerBaseUser(HttpUser):
         self.client.get("/docs/")
 
         if SERVE_LOCUST_DO_CREATE_OBJECTS is False or SERVE_LOCUST_DO_CREATE_OBJECTS == "False":
-            print(
+            logger.info(
                 "Skipping tasks that create and delete projects and apps because env var \
                     SERVE_LOCUST_DO_CREATE_OBJECTS == False"
             )
             return
         else:
-            print(f"DEBUG: Creating and deleting projects and apps as user {self.username}")
+            logger.info("Creating and deleting projects and apps as user %s", self.username)
 
             # Create project: locust_test_project_new_<id>
             project_name = f"locust_test_project_new_{self.local_individual_id}"
             self.create_project(project_name)
 
             # Open the project
-            print(f"Opening project at URL {self.project_url}")
+            logger.info("Opening project at URL %s", self.project_url)
             self.client.get(self.project_url)
 
             # TODO: create JupyterLab app
@@ -208,7 +211,7 @@ class PowerBaseUser(HttpUser):
     def get_token(self, relative_url: str = "/accounts/login/"):
         self.client.get(relative_url)
         self.csrftoken = self.client.cookies["csrftoken"]
-        print(f"DEBUG: self.csrftoken = {self.csrftoken}")
+        logger.debug("self.csrftoken = %s", self.csrftoken)
 
     def create_project(self, project_name: str):
         # Update the csrf token
@@ -228,14 +231,14 @@ class PowerBaseUser(HttpUser):
             name="---CREATE-NEW-PROJECT",
             catch_response=True,
         ) as response:
-            print(f"DEBUG: create project response.status_code = {response.status_code}, {response.reason}")
-            # if succeeds then url = /<username>/<project-name>
-            print(f"DEBUG: create project response.url = {response.url}")
+            logger.debug("create project response.status_code = %s, %s", response.status_code, response.reason)
+            # If succeeds then url = /<username>/<project-name>
+            logger.debug("create project response.url = %s", response.url)
             if self.username in response.url and project_name in response.url:
-                print(f"Successfully created project {project_name}")
+                logger.info("Successfully created project %s", project_name)
                 self.project_url = response.url
             else:
-                print(response.content)
+                logger.warning(response.content)
                 response.failure("Create project failed. Response URL does not contain username and project name.")
 
     def delete_project(self):
@@ -243,7 +246,7 @@ class PowerBaseUser(HttpUser):
         self.get_token("/projects")
 
         delete_project_url = f"{self.project_url}/delete"
-        print(f"DEBUG: Deleting the project at URL: {delete_project_url}")
+        logger.info("Deleting the project at URL: %s", delete_project_url)
 
         delete_project_data = dict(csrfmiddlewaretoken=self.csrftoken)
 
@@ -254,17 +257,17 @@ class PowerBaseUser(HttpUser):
             name="---DELETE-PROJECT",
             catch_response=True,
         ) as response:
-            print(f"DEBUG: delete project response.status_code = {response.status_code}, {response.reason}")
-            # if succeeds then url = /projects/
-            print(f"DEBUG: delete project response.url = {response.url}")
+            logger.debug("delete project response.status_code = %s, %s", response.status_code, response.reason)
+            # If succeeds then url = /projects/
+            logger.debug("delete project response.url = %s", response.url)
             if "/projects" in response.url:
-                print(f"Successfully deleted project at {self.project_url}")
+                logger.info("Successfully deleted project at %s", self.project_url)
             else:
-                print(response.content)
+                logger.warning(response.content)
                 response.failure("Delete project failed. Response URL does not contain /projects.")
 
     def login(self):
-        print(f"DEBUG: Login as user {self.username}")
+        logger.info("Login as user %s", self.username)
 
         login_data = dict(
             username=self.username,
@@ -279,16 +282,16 @@ class PowerBaseUser(HttpUser):
             name="---ON START---LOGIN",
             catch_response=True,
         ) as response:
-            print(f"DEBUG: login response.status_code = {response.status_code}, {response.reason}")
-            # if login succeeds then url = /accounts/login/, else /projects/
-            print(f"DEBUG: login response.url = {response.url}")
+            logger.debug("login response.status_code = %s, %s", response.status_code, response.reason)
+            # If login succeeds then url = /accounts/login/, else /projects/
+            logger.debug("login response.url = %s", response.url)
             if "/projects" in response.url:
                 self.is_authenticated = True
             else:
                 response.failure(f"Login as user {self.username} failed. Response URL does not contain /projects")
 
     def logout(self):
-        print(f"DEBUG: Login out user {self.username}")
+        logger.debug("Logout user %s", self.username)
         # logout_data = dict(username=self.username, csrfmiddlewaretoken=self.csrftoken)
         self.client.get("/accounts/logout/", name="---ON STOP---LOGOUT")
 
@@ -309,27 +312,32 @@ class AppViewerUser(HttpUser):
     @task
     def open_user_app(self):
         """Note that this approach does not actually create any resources on the k8s cluster."""
-        print(f"executing task open_user_app, running on host: {self.host}")
+        logger.info("executing task open_user_app, running on host: %s", self.host)
+
         APP_SHINYPROXY = "UNSET"
+
         if self.host == "https://serve-dev.scilifelab.se":
             # Dev
             # ex: https://loadtest-shinyproxy.staging.serve-dev.scilifelab.se/app/loadtest-shinyproxy
             # from host: https://staging.serve-dev.scilifelab.se
             APP_SHINYPROXY = self.host.replace("https://", "https://loadtest-shinyproxy.")
             APP_SHINYPROXY += "/app/loadtest-shinyproxy"
+
         elif "staging" in self.host:
             # Staging
             # ex: https://loadtest-shinyproxy2.staging.serve-dev.scilifelab.se/app/loadtest-shinyproxy2
             # from host: https://staging.serve-dev.scilifelab.se
             APP_SHINYPROXY = self.host.replace("https://", "https://loadtest-shinyproxy2.")
             APP_SHINYPROXY += "/app/loadtest-shinyproxy2"
+
         elif "serve.scilifelab.se" in self.host:
             # Production
             # ex: https://adhd-medication-sweden.serve.scilifelab.se/app/adhd-medication-sweden
             APP_SHINYPROXY = self.host.replace("https://", "https://adhd-medication-sweden.")
             APP_SHINYPROXY += "/app/adhd-medication-sweden"
 
-        print(f"making GET request to URL: {APP_SHINYPROXY}")
+        logger.debug("making GET request to URL: %s", APP_SHINYPROXY)
+
         self.client.get(APP_SHINYPROXY, name="user-app-shiny-proxy")
 
 
@@ -342,7 +350,7 @@ class OpenAPIClientBaseUser(HttpUser):
 
     def on_start(self):
         self.client.verify = False  # Don't check if certificate is valid
-        print(f"ONSTART new user type {self.user_type}")
+        logger.info("ONSTART new user type %s", self.user_type)
 
     # Tasks
 

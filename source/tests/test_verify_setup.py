@@ -1,8 +1,11 @@
 """Locust test file to verify the Locust test framework setup."""
 
+import logging
 import warnings
 
 from locust import HttpUser, between, task
+
+logger = logging.getLogger(__name__)
 
 warnings.filterwarnings("ignore")
 
@@ -17,4 +20,4 @@ class VerifyLocustUser(HttpUser):
 
     @task
     def verify_task(self):
-        print("executing simple task verify_task")
+        logger.info("executing simple task verify_task")

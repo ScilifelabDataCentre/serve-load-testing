@@ -1,7 +1,10 @@
+import logging
 import os
 import warnings
 
 from locust import HttpUser, between, task
+
+logger = logging.getLogger(__name__)
 
 warnings.filterwarnings("ignore")
 
@@ -22,7 +25,7 @@ class AuthenticatedUser(HttpUser):
     is_authenticated = False
 
     def on_start(self):
-        print("DEBUG: on start")
+        logger.debug("on start")
         self.client.verify = False  # Don't check if certificate is valid
         self.get_token()
         self.login()
@@ -30,10 +33,10 @@ class AuthenticatedUser(HttpUser):
     def get_token(self):
         self.client.get("/accounts/login/")
         self.csrftoken = self.client.cookies["csrftoken"]
-        print(f"DEBUG: self.csrftoken = {self.csrftoken}")
+        logger.debug("self.csrftoken = %s", self.csrftoken)
 
     def login(self):
-        print(f"DEBUG: Login as user {username}")
+        logger.info("Login as user %s", username)
 
         login_data = dict(username=username, password=password, csrfmiddlewaretoken=self.csrftoken)
 
@@ -44,16 +47,16 @@ class AuthenticatedUser(HttpUser):
             name="---ON START---LOGIN",
             catch_response=True,
         ) as response:
-            print(f"DEBUG: login response.status_code = {response.status_code}, {response.reason}")
-            # if login succeeds then url = /accounts/login/, else /projects/
-            print(f"DEBUG: login response.url = {response.url}")
+            logger.debug("login response.status_code = %s, %s", response.status_code, response.reason)
+            # If login succeeds then url = /accounts/login/, else /projects/
+            logger.debug("login response.url = %s", response.url)
             if "/projects" in response.url:
                 self.is_authenticated = True
             else:
                 response.failure(f"Login as user {username} failed. Response URL does not contain /projects")
 
     def logout(self):
-        print(f"DEBUG: Log out user {username}")
+        logger.debug("Log out user %s", username)
         # logout_data = dict(username=username, csrfmiddlewaretoken=self.csrftoken)
         self.client.get("/accounts/logout/", name="---ON STOP---LOGOUT")
 
@@ -64,7 +67,7 @@ class AuthenticatedUser(HttpUser):
     @task(2)
     def browse_protected_page(self):
         if self.is_authenticated is False:
-            print("Skipping test browse_protected_page. User is not authenticated.")
+            logger.debug("Skipping test browse_protected_page. User is not authenticated.")
             return
 
         request_data = dict(username=username, csrfmiddlewaretoken=self.csrftoken)
@@ -78,12 +81,12 @@ class AuthenticatedUser(HttpUser):
             verify=False,
             catch_response=True,
         ) as response:
-            print(f"DEBUG: protected page response.status_code = {response.status_code}, {response.reason}")
-            # if login succeeds then url = ?, else ?
-            print(f"DEBUG: protected page {response.url=}")
+            logger.debug("protected page response.status_code = %s, %s", response.status_code, response.reason)
+            # If login succeeds then url = ?, else ?
+            logger.debug("protected page %s", response.url)
             if page_rel_url not in response.url:
                 response.failure("User failed to access protected page.")
 
     def on_stop(self):
-        print("DEBUG: on stop")
+        logger.debug("on stop. exec logout.")
         self.logout()

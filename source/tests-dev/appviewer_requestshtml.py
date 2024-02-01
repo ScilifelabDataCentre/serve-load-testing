@@ -7,10 +7,13 @@ Note that shiny proxy pods are configured with
 - heartbeat-timeout=60s
 """
 
+import logging
 import warnings
 from time import sleep, time
 
 from requests_html import HTMLSession
+
+logger = logging.getLogger(__name__)
 
 warnings.filterwarnings("ignore")
 
@@ -53,26 +56,28 @@ def apps_runner(n_requests: int = 1):
     n_fails = 0
 
     sleep(INITIAL_DELAY_SECONDS)
-    print("START apps_runner")
+    logger.info("START apps_runner")
 
     for url in URL_LIST:
-        print(f"AppViewer URL set to: {url}")
+        logger.info("AppViewer URL set to: %s", url)
+
         for i in range(1, n_requests + 1):
-            print(f"Iteration: {i}")
+            logger.debug("Iteration: %s", i)
             try:
                 response = open_user_app_sync(url)
-                print(f"DEBUG: open_user_app_sync response = {response.status_code}, {response.reason}")
-                # print(response.content)
+                logger.debug("open_user_app_sync response = %s, %s", response.status_code, response.reason)
+                logger.debug(response.content)
+
             except Exception as ex:
                 n_fails += 1
-                print(f"Error while opening a user app {ex}")
+                logger.warning("Unable to open a user app. Error: %s", ex)
 
             sleep(OPEN_APPS_WAIT_TIME_SECONDS)
 
         sleep(DELAY_BETWEEN_USER_APP_TYPES_SECONDS)
 
     duration_s = time() - start_time
-    print(f"Duration (sec) for opening {n_requests} user apps = {duration_s}. Nr failures = {n_fails}")
+    logger.info("Duration (sec) for opening %s user apps = %s. Nr failures = %s", n_requests, duration_s, n_fails)
 
 
 def open_user_app_sync(url: str):
@@ -81,7 +86,9 @@ def open_user_app_sync(url: str):
     This results in a pod created on k8s when run via module.
     :param url: The app URL.
     """
-    print(f"DEBUG: Making a GET request to url {url}")
+
+    logger.info("Making a GET request to url: %s", url)
+
     session = HTMLSession(verify=False)
     r = session.get(url)
     assert r.status_code == 200
@@ -97,6 +104,7 @@ def __test_open_sync(n_requests):
 
 
 if __name__ == "__main__":
-    print("Begin running appviewer_requestshtml.py")
+    loglevel = logging.getLevelName(logger.getEffectiveLevel())
+    print(f"Begin running appviewer_requestshtml.py using logging level {loglevel}")
     apps_runner(4)
     print("Completed running appviewer_requestshtml.py")
