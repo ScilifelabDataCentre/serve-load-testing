@@ -39,7 +39,8 @@ OPEN_APPS_WAIT_TIME_SECONDS = 2
 
 
 def apps_runner(n_requests: int = 1):
-    """ Opens user apps.
+    """
+    Opens user apps.
         This results in pods created.
         :param n_requests int: The number of instances of each app to be opened.
     """
