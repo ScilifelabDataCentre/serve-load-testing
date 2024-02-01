@@ -297,14 +297,14 @@ class PowerBaseUser(HttpUser):
             name="---CREATE-NEW-PROJECT",
             catch_response=True,
         ) as response:
-            print(f"DEBUG: create project response.status_code = {response.status_code}, {response.reason}")
-            # if succeeds then url = /<username>/<project-name>
-            print(f"DEBUG: create project response.url = {response.url}")
+            logger.debug("create project response.status_code = %s, %s", response.status_code, response.reason)
+            # If succeeds then url = /<username>/<project-name>
+            logger.debug("create project response.url = %s", response.url)
             if self.username in response.url and project_name in response.url:
-                print(f"Successfully created project {project_name}")
+                logger.info("Successfully created project %s", project_name)
                 self.project_url = response.url
             else:
-                print(response.content)
+                logger.warning(response.content)
                 response.failure("Create project failed. Response URL does not contain username and project name.")
 
     def delete_project(self):
@@ -312,7 +312,7 @@ class PowerBaseUser(HttpUser):
         self.get_token("/projects")
 
         delete_project_url = f"{self.project_url}/delete"
-        print(f"DEBUG: Deleting the project at URL: {delete_project_url}")
+        logger.info("Deleting the project at URL: %s", delete_project_url)
 
         delete_project_data = dict(csrfmiddlewaretoken=self.csrftoken)
 
@@ -323,13 +323,13 @@ class PowerBaseUser(HttpUser):
             name="---DELETE-PROJECT",
             catch_response=True,
         ) as response:
-            print(f"DEBUG: delete project response.status_code = {response.status_code}, {response.reason}")
-            # if succeeds then url = /projects/
-            print(f"DEBUG: delete project response.url = {response.url}")
+            logger.debug("delete project response.status_code = %s, %s", response.status_code, response.reason)
+            # If succeeds then url = /projects/
+            logger.debug("delete project response.url = %s", response.url)
             if "/projects" in response.url:
-                print(f"Successfully deleted project at {self.project_url}")
+                logger.info("Successfully deleted project at %s", self.project_url)
             else:
-                print(response.content)
+                logger.warning(response.content)
                 response.failure("Delete project failed. Response URL does not contain /projects.")
 
     def login(self):
@@ -435,25 +435,29 @@ class AppViewerUser(HttpUser):
         """Note that this approach does not actually create any resources on the k8s cluster."""
         print(f"executing task open_user_app, running on host: {self.host}")
         APP_SHINYPROXY = "UNSET"
+
         if self.host == "https://serve-dev.scilifelab.se":
             # Dev
             # ex: https://loadtest-shinyproxy.staging.serve-dev.scilifelab.se/app/loadtest-shinyproxy
             # from host: https://staging.serve-dev.scilifelab.se
             APP_SHINYPROXY = self.host.replace("https://", "https://loadtest-shinyproxy.")
             APP_SHINYPROXY += "/app/loadtest-shinyproxy"
+
         elif "staging" in self.host:
             # Staging
             # ex: https://loadtest-shinyproxy2.staging.serve-dev.scilifelab.se/app/loadtest-shinyproxy2
             # from host: https://staging.serve-dev.scilifelab.se
             APP_SHINYPROXY = self.host.replace("https://", "https://loadtest-shinyproxy2.")
             APP_SHINYPROXY += "/app/loadtest-shinyproxy2"
+
         elif "serve.scilifelab.se" in self.host:
             # Production
             # ex: https://adhd-medication-sweden.serve.scilifelab.se/app/adhd-medication-sweden
             APP_SHINYPROXY = self.host.replace("https://", "https://adhd-medication-sweden.")
             APP_SHINYPROXY += "/app/adhd-medication-sweden"
 
-        print(f"making GET request to URL: {APP_SHINYPROXY}")
+        logger.debug("making GET request to URL: %s", APP_SHINYPROXY)
+
         self.client.get(APP_SHINYPROXY, name="user-app-shiny-proxy")
 
 
