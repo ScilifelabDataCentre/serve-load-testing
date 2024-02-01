@@ -72,9 +72,7 @@ class AuthenticatedUser(HttpUser):
 
         request_data = dict(username=username, csrfmiddlewaretoken=self.csrftoken)
 
-        response = self.client.get(
-            page_rel_url, data=request_data, headers={"Referer": "foo"}, verify=False
-        )
+        response = self.client.get(page_rel_url, data=request_data, headers={"Referer": "foo"}, verify=False)
 
         with self.client.get(
             page_rel_url,
