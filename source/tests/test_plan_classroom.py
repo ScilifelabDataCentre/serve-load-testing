@@ -1,12 +1,16 @@
 """Locust test file defining the test plan scenario for the classroom load."""
 
 from locust import between
-from base_user_types import VisitingBaseUser, PowerBaseUser, AppViewerUser, OpenAPIClientBaseUser
-
+from base_user_types import (
+    VisitingBaseUser,
+    PowerBaseUser,
+    AppViewerUser,
+    OpenAPIClientBaseUser,
+)
 
 
 class VisitingClassroomUser(VisitingBaseUser):
-    """ Implements the VisitingBaseUser user type. """
+    """Implements the VisitingBaseUser user type."""
 
     user_type = "VisitingClassroomUser"
     weight = 2
@@ -14,7 +18,7 @@ class VisitingClassroomUser(VisitingBaseUser):
 
 
 class PowerClassroomUser(PowerBaseUser):
-    """ Implements the PowerBaseUser user type. """
+    """Implements the PowerBaseUser user type."""
 
     user_type = "PowerClassroomUser"
     weight = 6
@@ -22,7 +26,7 @@ class PowerClassroomUser(PowerBaseUser):
 
 
 class AppViewerClassroomUser(AppViewerUser):
-    """ Implements the VisitingBaseUser user type. """
+    """Implements the VisitingBaseUser user type."""
 
     user_type = "AppViewerClassroomUser"
     weight = 1
@@ -30,7 +34,7 @@ class AppViewerClassroomUser(AppViewerUser):
 
 
 class OpenAPIClientClassroomUser(OpenAPIClientBaseUser):
-    """ Implements the ApiBaseUser user type. """
+    """Implements the ApiBaseUser user type."""
 
     user_type = "OpenAPIClientClassroomUser"
     weight = 1

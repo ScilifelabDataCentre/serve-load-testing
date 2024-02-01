@@ -2,13 +2,15 @@
 
 from locust import HttpUser, task, between
 import warnings
+
 warnings.filterwarnings("ignore")
 
 
 class VerifyHostUser(HttpUser):
-    """ The main purpose of this test user is to verify the setup of the Locust test framework
-        and access to the host.
+    """The main purpose of this test user is to verify the setup of the Locust test framework
+    and access to the host.
     """
+
     wait_time = between(1, 2)
 
     def on_start(self):

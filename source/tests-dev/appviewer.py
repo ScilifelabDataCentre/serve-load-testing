@@ -2,14 +2,16 @@
 
 from locust import HttpUser, task, between
 import warnings
+
 warnings.filterwarnings("ignore")
 
 
 class AppViewerUser(HttpUser):
-    """ Simulates a non-authenticated user that uses apps in Serve.
-        Note: This test is not completed. The response time statistics
-        do not currently reflect the true time taken to start the user app.
+    """Simulates a non-authenticated user that uses apps in Serve.
+    Note: This test is not completed. The response time statistics
+    do not currently reflect the true time taken to start the user app.
     """
+
     weight = 1
     wait_time = between(4, 8)
 
@@ -18,7 +20,7 @@ class AppViewerUser(HttpUser):
 
     @task
     def open_user_app(self):
-        """ Note that this approach does not create any pods on k8s. """
+        """Note that this approach does not create any pods on k8s."""
         print(f"executing task open_user_app, running on host: {self.host}")
         # ex: https://loadtest-shinyproxy2.staging.serve-dev.scilifelab.se/app/loadtest-shinyproxy2
         # from host: https://staging.serve-dev.scilifelab.se
