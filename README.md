@@ -85,8 +85,6 @@ Move into the source directory if not already there:
     - SERVE_LOCUST_TEST_USER_PASS=(The password of the test locust users)
     - SERVE_LOCUST_DO_CREATE_OBJECTS=(A boolean indicating whether to create objects in Serve such as projects and apps)
 
-
-
 Set the environment values from the file
 
     set -o allexport; source .env; set +o allexport
