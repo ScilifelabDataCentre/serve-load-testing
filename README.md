@@ -23,7 +23,7 @@ Make changes in the develop branch, commit and submit pull requests to merge to 
 ## Configuration options
 
 To configure the test runs, use the Locust configuration file ./source/locust.conf
-For options, see https://docs.locust.io/en/stable/configuration.html
+For options, see the [Locust docs](https://docs.locust.io/en/stable/configuration.html)
 
 ## Create tests
 
@@ -31,20 +31,21 @@ Create locust tests in the /source/tests directory.
 
 ## Verify the setup by running a simple test
 
+These tests do not need access to a host (URL) to test against.
+
 ### Running tests using the command line (headlessly)
 
 Run the command:
 
-    locust --headless -f ./tests/simple.py --users 1 --run-time 10s --html ./reports/locust-report-simple.html
+    locust --headless -f ./tests/test_verify_setup.py --users 1 --run-time 10s --html ./reports/locust-report-verify-setup.html
 
 Open the generated html report and verify that there are no errors and that the statistics look reasonable. The report is created under /source/reports/
 
 ### Using the Locust UI web client
 
-Run the commands
+Run the command
 
-    cd ./tests
-    locust --modern-ui --class-picker -f simple.py
+    locust --config locust-ui.conf --modern-ui --class-picker -f ./tests/test_verify_setup.py --html ./reports/locust-report-verify-setup-ui.html
 
 Open a browser tab at URL http://localhost:8089/
 
@@ -52,31 +53,53 @@ Paste in as host
 
     https://staging.serve-dev.scilifelab.se
 
+## Verify the setup and access to a host (URL)
+
+Run the command:
+
+    locust --headless -f ./tests/test_verify_host.py --users 1 --run-time 10s --html ./reports/locust-report-verify-host.html
+
+Open the generated html report and verify that there are no errors and that the statistics look reasonable. The report is created under /source/reports/
+
+
 ## Running tests
 
-If desired generate html reports by editing the report name in the below commands.
+### Prepare for running tests
 
-### Run tests headlessly
+Some of the tests require pre-existing test users that are named with the format "locust_test_user_"*
+Therefore, before running the tests, run the script to create them in the test environment. This can be performed using the Django manage module while connected to the Serve studio pod. For example to add 10 test users, run:
+
+    python3 manage.py add_locust_users 10
+
+When the tests are completed, you can remove the test users by running:
+
+    python3 manage.py remove_locust_users
+
+Move into the source directory if not already there:
 
     cd ./source
 
-### To run only the Website tests
+- Copy the template environment file .env.template as .env
+- Edit the followinf values in the .env file according to your needs.
 
-    locust -f ./tests/website.py --html ./reports/locust-report-website.html
+    - SERVE_LOCUST_TEST_USER_PASS=(The password of the test locust users)
+    - SERVE_LOCUST_DO_CREATE_OBJECTS=(A boolean indicating whether to create objects in Serve such as projects and apps)
 
-### To run only the API tests
+Set the environment values from the file
 
-    locust -f ./tests/api.py --html ./reports/locust-report-api.html
+    set -o allexport; source .env; set +o allexport
 
-### To run all tests, execute one of the below commands. Beware, please be nice to the system resources.
+If desired then generate html reports by editing the report name in the below commands.
 
-The configuration file parameter here is not necessary but is included for extra intelligibility.
+### To run the Normal test plan/scenario
 
-    locust --config locust.conf --html ./reports/locust-report-all.html
+Use minimum 10 users for the Normal test plan
 
-This executes the same command as above.
+    locust --headless -f ./tests/test_plan_normal.py --html ./reports/locust-report-normal.html --users 10 --run-time 30s
 
-    locust --html ./reports/locust-report-all.html
+### To run the Classroom test plan/scenario
+
+    locust --headless -f ./tests/test_plan_classroom.py --html ./reports/locust-report-classroom.html --users 1 --run-time 30s
 
 
 ## Tests under development
@@ -84,21 +107,45 @@ This executes the same command as above.
 These tests are not yet ready to be used in a load testing session.
 The tests are located under directory /source/tests-dev/
 
-### To run only the AppViewer tests (using user apps as a non-authenticated user)
+### To run only the AppViewer tests
 
-    locust -f ./tests-dev/appviewer.py --html ./reports/locust-report-appviewer.html --users 1 --run-time 20s
+This test uses a non-authenticated user
+
+    locust --headless -f ./tests-dev/appviewer.py --html ./reports/locust-report-appviewer.html --users 1 --run-time 20s
 
 ### To run only the test class requiring authentication
 
 These tests require a user account in Serve and a protected page such as a project page.
 
-- Copy the template environment file .env.template as .env
-- Edit the values in the .env file
-
-Set the environment values from the file
-
-    set -o allexport; source .env; set +o allexport
-
 Run the tests
 
-    locust -f ./tests-dev/authenticated.py --html ./reports/locust-report-authenticated.html --users 1 --run-time 10s
+    locust --headless -f ./tests-dev/authenticated.py --html ./reports/locust-report-authenticated.html --users 1 --run-time 10s
+
+
+## To run tests using a Docker base image
+
+Using provided Locust base image. To select which tests to execute, edit the file parameter -f as shown above.
+
+    cd ./source
+
+    docker run -p 8089:8089 -v $PWD:/mnt/locust locustio/locust -f /mnt/locust/tests/simple.py --config /mnt/locust/locust.conf --html /mnt/locust/reports/locust-report-from-docker.html
+
+
+## To run k8s pod-creating tests
+
+The Locust app-viewer tests do not currently create pods on the cluster. In order to run such tests, configure and execute appviewer_requestshtml.py
+
+    python3 ./tests-dev/appviewer_requestshtml.py
+
+
+## Use the shell script to run tests
+
+The shell script can be used to execute multiple simultaneous types of tests (such as Locust plus a scripted test).
+
+Edit the configuration in locust.conf and in .env. If running the appviewer_requestshtml.py module, then also configure settings in this file.
+
+```
+$ cd ./source
+$ chmod +x run_test_plan.sh
+$ ./run_test_plan.sh
+```
