@@ -10,7 +10,7 @@ warnings.filterwarnings("ignore")
 
 
 SERVE_LOCUST_TEST_USER_PASS = os.environ.get("SERVE_LOCUST_TEST_USER_PASS")
-SERVE_LOCUST_DO_CREATE_OBJECTS = os.environ.get("SERVE_LOCUST_DO_CREATE_OBJECTS", "False")
+SERVE_LOCUST_DO_CREATE_OBJECTS = bool(os.environ.get("SERVE_LOCUST_DO_CREATE_OBJECTS", False))
 
 
 class VisitingBaseUser(HttpUser):
