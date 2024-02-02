@@ -67,7 +67,7 @@ Open the generated html report and verify that there are no errors and that the 
 ### Prepare for running tests
 
 Some of the tests require pre-existing test users that are named with the format "locust_test_user_"*
-Therefore, before running the tests, run the script to create them in the test environment. This can be performed using the Django manage module while connected to the Serve studio pod. For example to add 10 test users, run: 
+Therefore, before running the tests, run the script to create them in the test environment. This can be performed using the Django manage module while connected to the Serve studio pod. For example to add 10 test users, run:
 
     python3 manage.py add_locust_users 10
 
