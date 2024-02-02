@@ -66,14 +66,26 @@ Open the generated html report and verify that there are no errors and that the 
 
 ### Prepare for running tests
 
-Before running the tests, run scripts to pre-create test users "locust_test_user_"*
+Some of the tests require pre-existing test users that are named with the format "locust_test_user_"*
+Therefore, before running the tests, run the script to create them in the test environment. This can be performed using the Django manage module while connected to the Serve studio pod. For example to add 10 test users, run: 
+
+    python3 manage.py add_locust_users 10
+
+When the tests are completed, you can remove the test users by running:
+
+    python3 manage.py remove_locust_users
 
 Move into the source directory if not already there:
 
     cd ./source
 
 - Copy the template environment file .env.template as .env
-- Edit the values in the .env file
+- Edit the followinf values in the .env file according to your needs.
+
+    - SERVE_LOCUST_TEST_USER_PASS=(The password of the test locust users)
+    - SERVE_LOCUST_DO_CREATE_OBJECTS=(A boolean indicating whether to create objects in Serve such as projects and apps)
+
+
 
 Set the environment values from the file
 
