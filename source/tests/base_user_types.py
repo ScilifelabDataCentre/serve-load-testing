@@ -66,7 +66,7 @@ class VisitingBaseUser(HttpUser):
     @task
     def register_user(self):
         """Register this user as a new user account."""
-        if SERVE_LOCUST_DO_CREATE_OBJECTS is False or SERVE_LOCUST_DO_CREATE_OBJECTS == "False":
+        if not SERVE_LOCUST_DO_CREATE_OBJECTS:
             logger.debug("Skipping register new user because env var SERVE_LOCUST_DO_CREATE_OBJECTS == False")
             return
 
