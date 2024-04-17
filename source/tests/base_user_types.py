@@ -300,12 +300,12 @@ class PowerBaseUser(HttpUser):
             logger.debug("create project response.status_code = %s, %s", response.status_code, response.reason)
             # If succeeds then url = /<username>/<project-name>
             logger.debug("create project response.url = %s", response.url)
-            if self.username in response.url and project_name in response.url:
+            if project_name in response.url:
                 logger.info("Successfully created project %s", project_name)
                 self.project_url = response.url
             else:
                 logger.warning(response.content)
-                response.failure("Create project failed. Response URL does not contain username and project name.")
+                response.failure("Create project failed. Response URL does not contain project name.")
 
     def delete_project(self):
         # Update the csrf token
@@ -447,8 +447,8 @@ class AppViewerUser(HttpUser):
             # Staging
             # ex: https://loadtest-shinyproxy2.staging.serve-dev.scilifelab.se/app/loadtest-shinyproxy2
             # from host: https://staging.serve-dev.scilifelab.se
-            APP_SHINYPROXY = self.host.replace("https://", "https://loadtest-shinyproxy2.")
-            APP_SHINYPROXY += "/app/loadtest-shinyproxy2"
+            APP_SHINYPROXY = self.host.replace("https://", "https://loadtest-shinyproxy3.")
+            APP_SHINYPROXY += "/app/loadtest-shinyproxy3"
 
         elif "serve.scilifelab.se" in self.host:
             # Production
