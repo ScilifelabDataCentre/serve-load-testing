@@ -1,5 +1,5 @@
 # Use the Locust image as the base image
-FROM locustio/locust
+FROM locustio/locust:2.25.0
 
 WORKDIR /home/locust
 

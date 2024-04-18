@@ -35,4 +35,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag ci:$(date +%s)
+      run: docker build . --file source/Dockerfile --tag ci:$(date +%s)
