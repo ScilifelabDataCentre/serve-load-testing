@@ -13,7 +13,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: scilifelabdatacentre/serve-load-testing
+  #IMAGE_NAME: ${{ github.repository }}
 
 jobs:
 
