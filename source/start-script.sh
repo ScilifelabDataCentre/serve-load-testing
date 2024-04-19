@@ -1,3 +1,3 @@
 #!/bin/bash
 
-/home/locust/locust
+locust
