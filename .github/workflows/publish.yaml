@@ -1,0 +1,64 @@
+name: Docker publish
+
+on:
+  push:
+    branches: [ "main" ]
+    paths-ignore:
+      - '**.md'
+    # Publish semver tags as releases.
+    tags: [ 'v*.*.*' ]
+
+  # Adds ability to run this workflow manually
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    concurrency:
+      group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+      cancel-in-progress: true
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value={{date 'YYYYMMDD-HHmm' tz='Europe/Stockholm'}},prefix=${{ github.ref_name }}-
+
+      - name: Output docker image information
+        run: |
+          echo "Branch GITHUB_REF##*/: ${GITHUB_REF##*/}"
+          #echo "github.refname: $github.ref_name"
+
+      - name: Login to GHCR
+        uses: docker/login-action@v1
+        with:
+            registry: ghcr.io
+            username: ${{github.actor}}
+            password: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Publish image to GHCR
+        uses: docker/build-push-action@v3
+        with:
+            file: ./source/Dockerfile
+            context: .
+            push: true
+            build-args: version=${{ github.ref_name }}
+            tags: |
+              ${{ steps.meta.outputs.tags }}
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            labels: ${{ steps.meta.outputs.labels }}

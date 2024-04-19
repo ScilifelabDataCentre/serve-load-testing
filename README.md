@@ -149,3 +149,12 @@ $ cd ./source
 $ chmod +x run_test_plan.sh
 $ ./run_test_plan.sh
 ```
+
+
+## Use a custom built docker image
+
+    cd ./source
+
+    docker build -t serve-load-testing .
+
+    docker run -p 8089:8089 serve-load-testing
