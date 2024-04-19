@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: locust-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: locust
+  template:
+    metadata:
+      labels:
+        app: locust
+      annotations:
+        statefulset.kubernetes.io/pod-name: locust
+    spec:
+      containers:
+      - name: locust
+        image: ghcr.io/scilifelabdatacentre/serve-load-testing:main-20240419-1108
+        ports:
+        - containerPort: 8089
