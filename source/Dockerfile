@@ -6,9 +6,10 @@ WORKDIR /home/locust
 # TODO: pip install requirements without locust
 
 # Copy the Locust files into the container
-COPY locust-ui.conf locust.conf
-COPY tests/ tests
-COPY start-script.sh start-script.sh
+COPY --chown=locust:locust locust-ui.conf locust.conf
+COPY --chown=locust:locust tests/ tests
+COPY --chown=locust:locust start-script.sh start-script.sh
 
-# Expose the Locust web UI port
-EXPOSE 8089
+RUN chmod ug+x start-script.sh
+
+EXPOSE 8089 5557
