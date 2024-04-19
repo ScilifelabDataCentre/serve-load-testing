@@ -11,11 +11,9 @@ on:
   # Adds ability to run this workflow manually
   workflow_dispatch:
 
-
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-
 
 jobs:
 
