@@ -56,7 +56,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
             file: ./source/Dockerfile
-            context: .
+            context: ./source
             push: true
             build-args: version=${{ github.ref_name }}
             tags: |
