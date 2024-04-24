@@ -18,7 +18,7 @@ spec:
                 name: locust-service
                 port:
                   number: 80 #8089
-  ingressClassName: nginx
+  #ingressClassName: nginx
   tls:
     - hosts:
       - locust.serve-dev.scilifelab.se
