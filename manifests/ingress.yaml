@@ -2,11 +2,13 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: locust-ingress
+  namespace: locust
   annotations:
-    kubernetes.io/ingress.class: "nginx"  # Make sure to use the correct ingress class for your Ingress Controller
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-issuer"
 spec:
   rules:
-    - host: localhost  # Replace with the desired hostname or IP address
+    - host: locust.serve-dev.scilifelab.se #localhost
       http:
         paths:
           - pathType: Prefix
@@ -17,3 +19,7 @@ spec:
                 port:
                   number: 80 #8089
   ingressClassName: nginx
+  tls:
+    - hosts:
+      - locust.serve-dev.scilifelab.se
+      secretName: locust-tls
