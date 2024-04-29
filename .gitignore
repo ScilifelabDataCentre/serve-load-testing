@@ -132,6 +132,9 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+# Locust deployment
+locust-auth
+
 # Locust output files
 source/reports/*
 !source/reports/.gitkeep
