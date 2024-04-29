@@ -179,6 +179,7 @@ Create a deployment named locust-deployment in a new namespace locust:
 ### Create a secret for the Locust web UI
 
 Create a secret named locust-ui-secret.
+
 Requires apache2-utils
 
     sudo apt install apache2-utils
