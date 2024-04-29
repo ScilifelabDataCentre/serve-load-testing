@@ -152,17 +152,21 @@ $ ./run_test_plan.sh
 
 ## Use a custom built docker image
 
+Copy the environment variables template file to .env and edit as needed. Then run:
+
     cd ./source
 
     docker build -t serve-load-testing .
 
-    docker run -p 8089:8089 serve-load-testing
+    docker run -p 8089:8089 --env-file ./.env serve-load-testing
 
 ## Deploy to kubernetes
 
 ### Using ArgoCD
 
 Create a new ArgoCD app using the application manifest ./argocd/application.yaml
+
+Edit the values of the secret locust-secrets in namespace locust as needed.
 
 Create the secret locust-ui-secret (see section below) in namespace locust.
 
