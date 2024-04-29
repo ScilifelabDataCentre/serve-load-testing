@@ -152,17 +152,23 @@ $ ./run_test_plan.sh
 
 ## Use a custom built docker image
 
+Copy the environment variables template file to .env and edit as needed. Then run:
+
     cd ./source
 
     docker build -t serve-load-testing .
 
-    docker run -p 8089:8089 serve-load-testing
+    docker run -p 8089:8089 --env-file ./.env serve-load-testing
 
 ## Deploy to kubernetes
 
 ### Using ArgoCD
 
 Create a new ArgoCD app using the application manifest ./argocd/application.yaml
+
+Edit the values of the secret locust-secrets in namespace locust as needed.
+
+Create the secret locust-ui-secret (see section below) in namespace locust.
 
 ### Using CLI kubectl
 
@@ -173,10 +179,13 @@ Create a deployment named locust-deployment in a new namespace locust:
 ### Create a secret for the Locust web UI
 
 Create a secret named locust-ui-secret.
-Required apache2-utils
+
+Requires apache2-utils
 
     sudo apt install apache2-utils
 
-    htpasswd -bc locust-auth locust <pwd>
+Then create a password file. Specify the password when prompted.
 
-    kubectl -n locust create secret generic locust-ui-secret --from-file=locust-auth
+    htpasswd -c auth locust
+
+    kubectl -n locust create secret generic locust-ui-secret --from-file=auth
