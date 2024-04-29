@@ -133,6 +133,7 @@ dmypy.json
 cython_debug/
 
 # Locust deployment
+auth
 locust-auth
 
 # Locust output files

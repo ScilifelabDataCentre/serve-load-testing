@@ -164,6 +164,8 @@ $ ./run_test_plan.sh
 
 Create a new ArgoCD app using the application manifest ./argocd/application.yaml
 
+Create the secret locust-ui-secret (see section below) in namespace locust.
+
 ### Using CLI kubectl
 
 Create a deployment named locust-deployment in a new namespace locust:
@@ -173,10 +175,12 @@ Create a deployment named locust-deployment in a new namespace locust:
 ### Create a secret for the Locust web UI
 
 Create a secret named locust-ui-secret.
-Required apache2-utils
+Requires apache2-utils
 
     sudo apt install apache2-utils
 
-    htpasswd -bc locust-auth locust <pwd>
+Then create a password file. Specify the password when prompted.
 
-    kubectl -n locust create secret generic locust-ui-secret --from-file=locust-auth
+    htpasswd -c auth locust
+
+    kubectl -n locust create secret generic locust-ui-secret --from-file=auth
