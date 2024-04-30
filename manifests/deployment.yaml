@@ -30,3 +30,24 @@ spec:
           requests:
             cpu: "250m"
             memory: "64Mi"
+      - name: locust-db
+        image: cyberw/locust-timescale:6
+        ports:
+        - containerPort: 5432
+        envFrom:
+        - secretRef:
+            name: locust-secrets
+        resources:
+          limits:
+            cpu: "1"
+            memory: "1Gi"
+          requests:
+            cpu: "250m"
+            memory: "64Mi"
+        volumeMounts:
+        - name: data-pvc
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: data-pvc
+        persistentVolumeClaim:
+          claimName: data-pvc
