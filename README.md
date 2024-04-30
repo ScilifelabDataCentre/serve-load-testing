@@ -160,6 +160,7 @@ Copy the environment variables template file to .env and edit as needed. Then ru
 
     docker run -p 8089:8089 --env-file ./.env serve-load-testing
 
+
 ## Deploy to kubernetes
 
 ### Using ArgoCD
@@ -169,6 +170,11 @@ Create a new ArgoCD app using the application manifest ./argocd/application.yaml
 Edit the values of the secret locust-secrets in namespace locust as needed.
 
 Create the secret locust-ui-secret (see section below) in namespace locust.
+
+When deployed using the manifest files to a k8s cluster, the Locust web UI is available at:
+
+    https://locust.serve-dev.scilifelab.se
+
 
 ### Using CLI kubectl
 
@@ -189,3 +195,23 @@ Then create a password file. Specify the password when prompted.
     htpasswd -c auth locust
 
     kubectl -n locust create secret generic locust-ui-secret --from-file=auth
+
+
+## Integrate locust-plugins
+
+locust-plugins is an add on to locust that adds functionality such as persisting test restults to a database.
+
+More specifically, we use the dashboards feature or locust-plugins. See
+
+https://github.com/SvenskaSpel/locust-plugins/tree/master/locust_plugins/dashboards
+
+To setup locust-plugins, there is an option or use locust-compose or manually setup. We use manual setup so that the
+dashboards can always be running.
+
+### Setup
+
+    pip3 install locust-plugins[dashboards]
+
+Or use a docker image
+
+    docker run cyberw/locust-timescale:6
