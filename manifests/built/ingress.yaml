@@ -11,7 +11,7 @@ metadata:
     nginx.ingress.kubernetes.io/auth-realm: "Protected area"
 spec:
   rules:
-    - host: locust.serve-dev.scilifelab.se #localhost
+    - host: locust.serve-dev.scilifelab.se
       http:
         paths:
           - pathType: Prefix
@@ -20,7 +20,7 @@ spec:
               service:
                 name: locust-service
                 port:
-                  number: 80 #8089
+                  number: 80
   #ingressClassName: nginx
   tls:
     - hosts:
