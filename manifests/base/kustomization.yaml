@@ -4,7 +4,9 @@ namespace: locust
 
 resources:
 - namespace.yaml
+- postgres-deployment.yaml
 - secret.yaml
+- pvc.yaml
 - deployment.yaml
 - service.yaml
 - ingress.yaml
