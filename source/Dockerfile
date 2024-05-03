@@ -3,7 +3,8 @@ FROM locustio/locust:2.25.0
 
 WORKDIR /home/locust
 
-# TODO: pip install requirements without locust
+# Install the locust-plugins dashboards plugin
+RUN pip3 install locust-plugins[dashboards]
 
 # Copy the Locust files into the container
 COPY --chown=locust:locust locust-ui.conf locust.conf
