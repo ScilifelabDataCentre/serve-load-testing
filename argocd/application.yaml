@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/ScilifelabDataCentre/serve-load-testing
-    path: manifests
+    path: manifests/built
     targetRevision: develop
   syncPolicy:
     syncOptions:

@@ -10,7 +10,7 @@ This repository contains two branches:
 
 Make changes in the develop branch, commit and submit pull requests to merge to main.
 
-## Setup
+## Setup for local development
 
     cd ./source
     python3 -m venv .venv
@@ -160,32 +160,43 @@ Copy the environment variables template file to .env and edit as needed. Then ru
 
     docker run -p 8089:8089 --env-file ./.env serve-load-testing
 
-## Deploy to kubernetes
 
-### Using ArgoCD
+## Deploy to a kubernetes cluster in a production environment
 
-Create a new ArgoCD app using the application manifest ./argocd/application.yaml
+The repository is setup for deployment to a kubernetes cluster using ArgoCD.
+This is however beyond the scope of this document.
 
-Edit the values of the secret locust-secrets in namespace locust as needed.
 
-Create the secret locust-ui-secret (see section below) in namespace locust.
+## Deploy to a local kubernetes clusing for local development
 
-### Using CLI kubectl
+You might want to do this to troubleshoot a kubernetes deployment.
+Manifests for a local deployment are provided using Kustomize.
+Use togetehr with the CLI kubectl.
 
 Create a deployment named locust-deployment in a new namespace locust:
 
-    kubectl apply -f ./manifests --force
+    kustomize build ./manifests/overlays/development | kubectl apply -f - --force
 
-### Create a secret for the Locust web UI
+To delete the deployments created:
 
-Create a secret named locust-ui-secret.
+    kubectl -n locust delete deployment locust-deployment
+    kubectl -n locust delete deployment postgres-deployment
 
-Requires apache2-utils
 
-    sudo apt install apache2-utils
+## Integrate locust-plugins
 
-Then create a password file. Specify the password when prompted.
+locust-plugins is an add on to locust that adds functionality such as persisting test restults to a database.
+More specifically, we use the dashboards feature or locust-plugins. See
 
-    htpasswd -c auth locust
+https://github.com/SvenskaSpel/locust-plugins/tree/master/locust_plugins/dashboards
 
-    kubectl -n locust create secret generic locust-ui-secret --from-file=auth
+To setup locust-plugins, there is an option or use locust-compose or manually setup. We use manual setup so that the
+dashboards can always be running.
+
+locust-plugins is integrated in the production version of this project (deployed to kubernetes using k8s manifests and a built docker image) but not used in local development. However the dashboards can be installed locally using:
+
+    pip3 install locust-plugins[dashboards]
+
+Or use a docker image
+
+    docker run cyberw/locust-timescale:6

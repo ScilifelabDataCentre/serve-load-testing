@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: locust-secrets
+type: Opaque
+data:
+  SERVE_USERNAME: Y2hhbmdlLW1l
+  SERVE_PASS: Y2hhbmdlLW1l
+  SERVE_LOCUST_TEST_USER_PASS: cGFzc3dvcmQxMjM=
+  SERVE_LOCUST_DO_CREATE_OBJECTS: ZmFsc2U=
+  PROTECTED_PAGE_RELATIVE_URL: Y2hhbmdlLW1l
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: locust-service
+  namespace: locust
+spec:
+  selector:
+    app: locust
+  ports:
+    - name: web
+      protocol: TCP
+      port: 80
+      targetPort: 8089
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: locust-ingress
+  namespace: locust
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+    - host: localhost
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: locust-service
+                port:
+                  number: 80
+  ingressClassName: nginx

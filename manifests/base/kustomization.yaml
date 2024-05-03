@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: locust
+
+resources:
+- namespace.yaml
+- postgres-deployment.yaml
+- secret.yaml
+- pvc.yaml
+- deployment.yaml
+- service.yaml
+- ingress.yaml
+
+
+commonAnnotations:
+  description: A locust load testing tool for the Serve project.
+labels:
+- includeSelectors: true
+  pairs:
+    app: locust
