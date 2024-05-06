@@ -29,6 +29,9 @@ spec:
   selector:
     matchLabels:
       app: postgres
+  securityContext:
+    runAsNonRoot: true
+    allowPrivilegeEscalation: false
   template:
     metadata:
       labels:

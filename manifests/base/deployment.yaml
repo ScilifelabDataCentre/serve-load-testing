@@ -8,6 +8,9 @@ spec:
   selector:
     matchLabels:
       app: locust
+  securityContext:
+    runAsNonRoot: true
+    allowPrivilegeEscalation: false
   template:
     metadata:
       labels:
