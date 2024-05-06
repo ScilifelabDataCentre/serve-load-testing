@@ -9,6 +9,10 @@ data:
   SERVE_LOCUST_TEST_USER_PASS: cGFzc3dvcmQxMjM=
   SERVE_LOCUST_DO_CREATE_OBJECTS: ZmFsc2U=
   PROTECTED_PAGE_RELATIVE_URL: Y2hhbmdlLW1l
+  PGHOST: cG9zdGdyZXMtc2VydmljZS5sb2N1c3Quc3ZjLmNsdXN0ZXIubG9jYWw=
+  PGPORT: NTQzMg==
+  PGUSER: cG9zdGdyZXM=
+  PGPASSWORD: Q2JpNk42RWVSUGc2RTdC
 ---
 apiVersion: v1
 kind: Service
@@ -19,8 +23,7 @@ spec:
   selector:
     app: locust
   ports:
-    - name: web
-      protocol: TCP
+    - protocol: TCP
       port: 80
       targetPort: 8089
   type: ClusterIP
