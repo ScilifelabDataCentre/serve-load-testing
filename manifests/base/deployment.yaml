@@ -8,9 +8,6 @@ spec:
   selector:
     matchLabels:
       app: locust
-  securityContext:
-    runAsNonRoot: true
-    allowPrivilegeEscalation: false
   template:
     metadata:
       labels:
@@ -18,6 +15,10 @@ spec:
       annotations:
         statefulset.kubernetes.io/pod-name: locust
     spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
       - name: locust
         image: ghcr.io/scilifelabdatacentre/serve-load-testing:main-20240503-1109
@@ -26,6 +27,8 @@ spec:
         envFrom:
         - secretRef:
             name: locust-secrets
+        securityContext:
+          allowPrivilegeEscalation: false
         resources:
           limits:
             cpu: "1"
