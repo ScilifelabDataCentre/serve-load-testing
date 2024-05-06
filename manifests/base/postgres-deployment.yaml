@@ -37,6 +37,10 @@ spec:
       labels:
         app: postgres
     spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
       - name: postgres
         image: cyberw/locust-timescale:6 #postgres:latest
@@ -45,6 +49,8 @@ spec:
             name: postgres-secret
         ports:
         - containerPort: 5432
+        securityContext:
+          allowPrivilegeEscalation: false
         resources:
           limits:
             cpu: "2"
