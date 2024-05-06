@@ -41,7 +41,7 @@ metadata:
     nginx.ingress.kubernetes.io/auth-realm: "Protected area"
 spec:
   rules:
-    - host: locust.serve-dev.scilifelab.se
+    - host: locust.serve-dev.scilifelab-1-dev.sys.kth.se
       http:
         paths:
           - pathType: Prefix
@@ -54,5 +54,5 @@ spec:
   #ingressClassName: nginx
   tls:
     - hosts:
-      - locust.serve-dev.scilifelab.se
+      - locust.serve-dev.scilifelab-1-dev.sys.kth.se
       secretName: locust-tls
