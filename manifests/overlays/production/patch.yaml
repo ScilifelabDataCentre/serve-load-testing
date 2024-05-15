@@ -4,6 +4,7 @@ metadata:
   name: locust-secrets
 type: Opaque
 data:
+  LOCUST_WEB_HOST: MTI3LjAuMC4x
   SERVE_USERNAME: Y2hhbmdlLW1l
   SERVE_PASS: Y2hhbmdlLW1l
   SERVE_LOCUST_TEST_USER_PASS: cGFzc3dvcmQxMjM=
