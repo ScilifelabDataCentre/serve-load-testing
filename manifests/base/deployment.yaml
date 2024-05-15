@@ -16,7 +16,7 @@ spec:
         statefulset.kubernetes.io/pod-name: locust
     spec:
       securityContext:
-        runAsNonRoot: true
+        #runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
       containers:
