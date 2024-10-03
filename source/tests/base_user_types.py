@@ -312,7 +312,7 @@ class PowerBaseUser(HttpUser):
         # Update the csrf token
         self.get_token("/projects")
 
-        delete_project_url = f"{self.project_url}delete/" # The project_url already contains a trailing slash
+        delete_project_url = f"{self.project_url}delete/"  # The project_url already contains a trailing slash
         logger.info("Deleting the project at URL: %s", delete_project_url)
 
         delete_project_data = dict(csrfmiddlewaretoken=self.csrftoken)
@@ -330,8 +330,11 @@ class PowerBaseUser(HttpUser):
             if response.status_code == 200 and "/projects" in response.url:
                 logger.info("Successfully deleted project at %s", self.project_url)
             else:
-                logger.warning(f"Delete project failed for project {self.project_url} Response status not 200 or URL does not contain /projects.")
-                #logger.debug(response.content)
+                logger.warning(
+                    f"Delete project failed for project {self.project_url}. \
+                        Response status not 200 or URL does not contain /projects."
+                )
+                # logger.debug(response.content)
                 response.failure("Delete project failed. Response URL does not contain /projects.")
 
     def login(self):
