@@ -105,10 +105,14 @@ class VisitingBaseUser(HttpUser):
                 if "/accounts/login" in response.url:
                     self.user_has_registered = True
                 else:
-                    logger.warning(f"Register as new user {self.email} failed. Response URL {response.url} does not contain /accounts/login")
+                    logger.warning(
+                        f"Register as new user {self.email} failed. \
+                            Response URL {response.url} does not contain /accounts/login"
+                    )
                     logger.debug(response.content)
                     response.failure(
-                        f"Register as new user {self.email} failed. Response URL {response.url} does not contain /accounts/login"
+                        f"Register as new user {self.email} failed. \
+                            Response URL {response.url} does not contain /accounts/login"
                     )
 
     def get_token(self):
@@ -175,7 +179,7 @@ class PowerBaseUser(HttpUser):
         self.login()
 
         if self.is_authenticated is False:
-            logger.info(f"After login function but user { self.username} is not authenticated. Ending task.")
+            logger.info(f"After login function but user {self.username} is not authenticated. Ending task.")
             return
 
         # Open user docs pages
@@ -240,15 +244,17 @@ class PowerBaseUser(HttpUser):
                 logger.info("Successfully created project %s", project_name)
                 self.project_url = response.url
             else:
-                logger.warning(f"Create project failed. Response URL {response.url} does not contain project name {project_name}")
-                #logger.debug(response.content)
+                logger.warning(
+                    f"Create project failed. Response URL {response.url} does not contain project name {project_name}"
+                )
+                # logger.debug(response.content)
                 response.failure("Create project failed. Response URL does not contain project name.")
 
     def delete_project(self):
         # Update the csrf token
         self.get_token("/projects")
 
-        delete_project_url = f"{self.project_url}delete/" # The project_url already contains a trailing slash
+        delete_project_url = f"{self.project_url}delete/"  # The project_url already contains a trailing slash
         logger.info("Deleting the project at URL: %s", delete_project_url)
 
         delete_project_data = dict(csrfmiddlewaretoken=self.csrftoken)
@@ -266,8 +272,11 @@ class PowerBaseUser(HttpUser):
             if response.status_code == 200 and "/projects" in response.url:
                 logger.info("Successfully deleted project at %s", self.project_url)
             else:
-                logger.warning(f"Delete project failed for project {self.project_url} Response status not 200 or URL does not contain /projects.")
-                #logger.debug(response.content)
+                logger.warning(
+                    f"Delete project failed for project {self.project_url}. \
+                        Response status not 200 or URL does not contain /projects."
+                )
+                # logger.debug(response.content)
                 response.failure("Delete project failed. Response URL does not contain /projects.")
 
     def login(self):
@@ -292,7 +301,9 @@ class PowerBaseUser(HttpUser):
             if "/projects" in response.url:
                 self.is_authenticated = True
             else:
-                logger.warning(f"Login as user {self.username} failed. Response URL {response.url} does not contain /projects")
+                logger.warning(
+                    f"Login as user {self.username} failed. Response URL {response.url} does not contain /projects"
+                )
                 response.failure(f"Login as user {self.username} failed. Response URL does not contain /projects")
 
     def logout(self):
