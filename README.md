@@ -182,9 +182,9 @@ Copy the environment variables template file to .env and edit as needed. Then ru
 
     cd ./source
 
-    docker build -t serve-load-testing .
+    docker build -t serve-load-testing:dev .
 
-    docker run -p 8089:8089 --env-file ./.env serve-load-testing
+    docker run -p 8089:8089 --env-file ./.env serve-load-testing:dev
 
 
 ## Deploy to a kubernetes cluster in a production environment
