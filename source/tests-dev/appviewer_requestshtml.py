@@ -1,6 +1,8 @@
 """
 Handles opening user apps.
-This implementation does not use Locust and does not work with Locust.
+This implementation does not use Locust and does not work through Locust.
+It can however be run concurrently with Locust load tests to put additional
+realistic load on the system.
 
 Note that shiny proxy pods are configured with
 - heartbeat-rate=10s
@@ -22,8 +24,8 @@ warnings.filterwarnings("ignore")
 
 # The user app URLs to open in succession
 URL_LIST = [
-    # "https://loadtest-shinyproxy.serve-dev.scilifelab.se/app/loadtest-shinyproxy"
-    "https://loadtest-shinyproxy2.staging.serve-dev.scilifelab.se/app/loadtest-shinyproxy2"
+    "https://loadtest-shinyproxy.serve-dev.scilifelab.se/app/loadtest-shinyproxy"
+    # "https://loadtest-shinyproxy.serve-staging.serve-dev.scilifelab.se/app/loadtest-shinyproxy"
     # "https://demo-bayesianlinmod.serve.scilifelab.se/app/demo-bayesianlinmod",
     # "https://demo-markovchain.serve.scilifelab.se/app/demo-markovchain"
 ]

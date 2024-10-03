@@ -100,14 +100,15 @@ class VisitingBaseUser(HttpUser):
                 catch_response=True,
             ) as response:
                 logger.debug("signup response.status_code = %s, %s", response.status_code, response.reason)
-                # If login succeeds then url = /accounts/login/
+                # If the signup succeeds then url = /accounts/login/
                 logger.debug("signup response.url = %s", response.url)
                 if "/accounts/login" in response.url:
                     self.user_has_registered = True
                 else:
+                    logger.warning(f"Register as new user {self.email} failed. Response URL {response.url} does not contain /accounts/login")
                     logger.debug(response.content)
                     response.failure(
-                        f"Register as new user {self.email} failed. Response URL does not contain /accounts/login"
+                        f"Register as new user {self.email} failed. Response URL {response.url} does not contain /accounts/login"
                     )
 
     def get_token(self):
@@ -174,6 +175,7 @@ class PowerBaseUser(HttpUser):
         self.login()
 
         if self.is_authenticated is False:
+            logger.info(f"After login function but user { self.username} is not authenticated. Ending task.")
             return
 
         # Open user docs pages
@@ -215,7 +217,7 @@ class PowerBaseUser(HttpUser):
 
     def create_project(self, project_name: str):
         # Update the csrf token
-        self.get_token("/projects/create?template=Default project")
+        self.get_token("/projects/create/?template=Default project")
 
         project_data = dict(
             name=project_name,
@@ -225,27 +227,28 @@ class PowerBaseUser(HttpUser):
         )
 
         with self.client.post(
-            url="/projects/create?template=Default%20project",
+            url="/projects/create/?template=Default%20project",
             data=project_data,
             headers={"Referer": "foo"},
             name="---CREATE-NEW-PROJECT",
             catch_response=True,
         ) as response:
             logger.debug("create project response.status_code = %s, %s", response.status_code, response.reason)
-            # If succeeds then url = /<username>/<project-name>
+            # If succeeds then url = /projects/<project-name>/
             logger.debug("create project response.url = %s", response.url)
             if project_name in response.url:
                 logger.info("Successfully created project %s", project_name)
                 self.project_url = response.url
             else:
-                logger.warning(response.content)
+                logger.warning(f"Create project failed. Response URL {response.url} does not contain project name {project_name}")
+                #logger.debug(response.content)
                 response.failure("Create project failed. Response URL does not contain project name.")
 
     def delete_project(self):
         # Update the csrf token
         self.get_token("/projects")
 
-        delete_project_url = f"{self.project_url}/delete"
+        delete_project_url = f"{self.project_url}delete/" # The project_url already contains a trailing slash
         logger.info("Deleting the project at URL: %s", delete_project_url)
 
         delete_project_data = dict(csrfmiddlewaretoken=self.csrftoken)
@@ -258,12 +261,13 @@ class PowerBaseUser(HttpUser):
             catch_response=True,
         ) as response:
             logger.debug("delete project response.status_code = %s, %s", response.status_code, response.reason)
-            # If succeeds then url = /projects/
+            # If succeeds then status_code == 200 and url = /projects/
             logger.debug("delete project response.url = %s", response.url)
-            if "/projects" in response.url:
+            if response.status_code == 200 and "/projects" in response.url:
                 logger.info("Successfully deleted project at %s", self.project_url)
             else:
-                logger.warning(response.content)
+                logger.warning(f"Delete project failed for project {self.project_url} Response status not 200 or URL does not contain /projects.")
+                #logger.debug(response.content)
                 response.failure("Delete project failed. Response URL does not contain /projects.")
 
     def login(self):
@@ -283,17 +287,26 @@ class PowerBaseUser(HttpUser):
             catch_response=True,
         ) as response:
             logger.debug("login response.status_code = %s, %s", response.status_code, response.reason)
-            # If login succeeds then url = /accounts/login/, else /projects/
+            # If login succeeds then the url contains /projects/, else /accounts/login/
             logger.debug("login response.url = %s", response.url)
             if "/projects" in response.url:
                 self.is_authenticated = True
             else:
+                logger.warning(f"Login as user {self.username} failed. Response URL {response.url} does not contain /projects")
                 response.failure(f"Login as user {self.username} failed. Response URL does not contain /projects")
 
     def logout(self):
-        logger.debug("Logout user %s", self.username)
-        # logout_data = dict(username=self.username, csrfmiddlewaretoken=self.csrftoken)
-        self.client.get("/accounts/logout/", name="---ON STOP---LOGOUT")
+        if self.is_authenticated:
+            logger.debug("Logout user %s", self.username)
+            logout_data = dict(username=self.username, csrfmiddlewaretoken=self.csrftoken)
+            with self.client.post(
+                "/accounts/logout/",
+                data=logout_data,
+                headers={"Referer": "foo"},
+                name="---ON STOP---LOGOUT",
+                catch_response=True,
+            ):
+                pass
 
 
 class AppViewerUser(HttpUser):
@@ -318,17 +331,17 @@ class AppViewerUser(HttpUser):
 
         if self.host == "https://serve-dev.scilifelab.se":
             # Dev
-            # ex: https://loadtest-shinyproxy.staging.serve-dev.scilifelab.se/app/loadtest-shinyproxy
-            # from host: https://staging.serve-dev.scilifelab.se
+            # ex: https://loadtest-shinyproxy.serve-dev.scilifelab.se/app/loadtest-shinyproxy
+            # from host: https://serve-dev.scilifelab.se
             APP_SHINYPROXY = self.host.replace("https://", "https://loadtest-shinyproxy.")
             APP_SHINYPROXY += "/app/loadtest-shinyproxy"
 
         elif "staging" in self.host:
             # Staging
-            # ex: https://loadtest-shinyproxy2.staging.serve-dev.scilifelab.se/app/loadtest-shinyproxy2
-            # from host: https://staging.serve-dev.scilifelab.se
-            APP_SHINYPROXY = self.host.replace("https://", "https://loadtest-shinyproxy3.")
-            APP_SHINYPROXY += "/app/loadtest-shinyproxy3"
+            # ex: https://loadtest-shinyproxy.serve-staging.serve-dev.scilifelab.se/app/loadtest-shinyproxy
+            # from host: https://serve-staging.serve-dev.scilifelab.se
+            APP_SHINYPROXY = self.host.replace("https://", "https://loadtest-shinyproxy.")
+            APP_SHINYPROXY += "/app/loadtest-shinyproxy"
 
         elif "serve.scilifelab.se" in self.host:
             # Production
@@ -336,7 +349,7 @@ class AppViewerUser(HttpUser):
             APP_SHINYPROXY = self.host.replace("https://", "https://adhd-medication-sweden.")
             APP_SHINYPROXY += "/app/adhd-medication-sweden"
 
-        logger.debug("making GET request to URL: %s", APP_SHINYPROXY)
+        logger.debug("making GET request to user app URL: %s", APP_SHINYPROXY)
 
         self.client.get(APP_SHINYPROXY, name="user-app-shiny-proxy")
 

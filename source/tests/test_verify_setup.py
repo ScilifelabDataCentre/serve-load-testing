@@ -20,4 +20,5 @@ class VerifyLocustUser(HttpUser):
 
     @task
     def verify_task(self):
-        logger.info("executing simple task verify_task")
+        logger.debug("executing simple task verify_task. Log level = debug.")
+        logger.info("executing simple task verify_task. Log level = info.")
