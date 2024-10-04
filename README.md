@@ -9,6 +9,7 @@ This repository contains two branches:
 - develop
 
 Make changes in the develop branch, commit and submit pull requests to merge to main.
+Regularly sync develop with main using rebase to retain a clean commit history.
 
 ## Setup for local development
 
