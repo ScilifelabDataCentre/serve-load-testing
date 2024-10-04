@@ -42,13 +42,15 @@ spec:
             name: postgres-secret
         ports:
         - containerPort: 5432
+          capabilities:
+            drop: ["ALL"]
         resources:
           limits:
-            cpu: "1"
-            memory: "1Gi"
+            cpu: "2"
+            memory: "5Gi"
           requests:
-            cpu: "250m"
-            memory: "64Mi"
+            cpu: "500m"
+            memory: "1Gi"
         volumeMounts:
         - name: postgres-storage
           mountPath: /var/lib/postgresql/data

@@ -23,7 +23,7 @@ jobs:
         HADOLINT_RECURSIVE: "true"
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: "Dockerfile*"
@@ -33,6 +33,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Build the Docker image
       run: docker build source --file source/Dockerfile --tag ci:$(date +%s)

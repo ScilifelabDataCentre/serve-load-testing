@@ -5,6 +5,8 @@ on:
     branches: [ "main" ]
     paths-ignore:
       - '**.md'
+      - 'argocd/**'
+      - 'manifests/**'
     # Publish semver tags as releases.
     tags: [ 'v*.*.*' ]
 
