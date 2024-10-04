@@ -16,7 +16,7 @@ class VerifyLocustUser(HttpUser):
     wait_time = between(1, 2)
 
     def on_start(self):
-        self.client.verify = False  # Don't to check if certificate is valid
+        self.client.verify = False  # Don't check if certificate is valid
 
     @task
     def verify_task(self):
