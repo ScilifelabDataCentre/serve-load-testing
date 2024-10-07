@@ -56,9 +56,17 @@ class AuthenticatedUser(HttpUser):
                 response.failure(f"Login as user {username} failed. Response URL does not contain /projects")
 
     def logout(self):
-        logger.debug("Log out user %s", username)
-        # logout_data = dict(username=username, csrfmiddlewaretoken=self.csrftoken)
-        self.client.get("/accounts/logout/", name="---ON STOP---LOGOUT")
+        if self.is_authenticated:
+            logger.debug("Logout user %s", self.username)
+            logout_data = dict(username=self.username, csrfmiddlewaretoken=self.csrftoken)
+            with self.client.post(
+                "/accounts/logout/",
+                data=logout_data,
+                headers={"Referer": "foo"},
+                name="---ON STOP---LOGOUT",
+                catch_response=True,
+            ):
+                pass
 
     @task
     def browse_homepage(self):
