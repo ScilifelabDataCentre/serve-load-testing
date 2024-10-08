@@ -110,7 +110,8 @@ class CreatingUser(HttpUser):
         environment = None
 
         # Extract the form values of the option elements using XPath
-        # Flavor: <select name="flavor" class="form-control" rows="3" id="id_flavor"> <option value="28" selected>2 vCPU, 4 GB RAM</option></select>
+        # Flavor: <select name="flavor" class="form-control" rows="3" id="id_flavor">
+        # <option value="28" selected>2 vCPU, 4 GB RAM</option></select>
         el_volume = tree.xpath('//select[@name="volume"]/option')
         el_flavor = tree.xpath('//select[@name="flavor"]/option')
         el_environment = tree.xpath('//select[@name="environment"]/option')
