@@ -17,7 +17,7 @@ COPY --chown=locust:locust tests-dev/ tests-dev
 COPY --chown=locust:locust start-script.sh start-script.sh
 COPY --chown=locust:locust run_test_plan.sh run_test_plan.sh
 
-RUN chmod ug+x start-script.sh \
-    && ug+x run_test_plan.sh
+RUN chmod ug+x start-script.sh
+RUN chmod ug+x run_test_plan.sh
 
 EXPOSE 8089 5557
