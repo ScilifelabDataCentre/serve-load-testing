@@ -2,12 +2,14 @@ import logging
 import os
 import time
 import warnings
-from lxml import etree
+
 from locust import HttpUser, between, task
-from requests_html import AsyncHTMLSession, HTML
-#import asyncio
-#from io import StringIO
-#import requests
+from lxml import etree
+from requests_html import HTML, AsyncHTMLSession
+
+# import asyncio
+# from io import StringIO
+# import requests
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +17,7 @@ warnings.filterwarnings("ignore")
 
 username = os.environ.get("SERVE_USERNAME")
 password = os.environ.get("SERVE_PASS")
+
 
 # Utility functions
 def make_url(url: str):
@@ -80,9 +83,9 @@ class CreatingUser(HttpUser):
         self.get_token(app_create_url)
 
         # Fetch the web page content
-        #response = requests.get(app_create_url, data=dict(csrfmiddlewaretoken=self.csrftoken))        
-        #response = requests.post(app_create_url, data=dict(csrfmiddlewaretoken=self.csrftoken))
-    
+        # response = requests.get(app_create_url, data=dict(csrfmiddlewaretoken=self.csrftoken))
+        # response = requests.post(app_create_url, data=dict(csrfmiddlewaretoken=self.csrftoken))
+
         # First make a dummy POST to the form to get the html and parse out the select option values
         app_data = dict(csrfmiddlewaretoken=self.csrftoken)
 
@@ -113,39 +116,39 @@ class CreatingUser(HttpUser):
         el_environment = tree.xpath('//select[@name="environment"]/option')
 
         if el_volume:
-            volume = el_volume[0].get('value')
+            volume = el_volume[0].get("value")
         else:
-            print('Option element VOLUME not found')
+            print("Option element VOLUME not found")
 
         if el_flavor:
-            flavor = el_flavor[0].get('value')
+            flavor = el_flavor[0].get("value")
         else:
-            print('Option element FLAVOR not found')
+            print("Option element FLAVOR not found")
 
         if el_environment:
-            environment = el_environment[0].get('value')
+            environment = el_environment[0].get("value")
         else:
-            print('Option element ENVIRONMENT not found')
+            print("Option element ENVIRONMENT not found")
 
         print(f"The parsed form values to use are: volume={volume}, flavor={flavor}, environment={environment}")
 
-        # To create the app, perform a POST submit to a URL with pattern: 
+        # To create the app, perform a POST submit to a URL with pattern:
         # https://serve-dev.scilifelab.se/projects/locust-appcreator-project-20241007-145428-sib/apps/create/jupyter-lab?from=overview
 
-        #sesn = requests_html.HTMLSession(verify=False)
-        #resp = sesn.get(app_create_url)
-        #assert resp.status_code == 200
-        
+        # sesn = requests_html.HTMLSession(verify=False)
+        # resp = sesn.get(app_create_url)
+        # assert resp.status_code == 200
+
         # Render JavaScript
-        #resp.html.render()
+        # resp.html.render()
 
         # Parse the HTML content
-        #html = HTML(html=html_raw)
+        # html = HTML(html=html_raw)
 
         # Find the option element and extract its value
         # Downloads Chromium
         # from  https://storage.googleapis.com/chromium-browser-snapshots/Linux_x64/1181205/chrome-linux.zip
-        #asyncio.run(fetch_and_render(app_create_url))
+        # asyncio.run(fetch_and_render(app_create_url))
 
         app_data = dict(
             name=app_name,
@@ -171,12 +174,9 @@ class CreatingUser(HttpUser):
                 # The returned URL should NOT be back at the create app page
                 logger.info("Successfully created JupyterLab app %s", app_name)
             else:
-                logger.warning(
-                    f"Create JupyterLab app failed. Response URL {response.url} does not indicate success."
-                )
+                logger.warning(f"Create JupyterLab app failed. Response URL {response.url} does not indicate success.")
                 logger.debug(response.content)
                 response.failure("Create JupyterLab app failed. Response URL does not indicate success.")
-
 
     def create_project(self, project_name: str):
         # Update the csrf token
@@ -270,9 +270,9 @@ async def fetch_and_render(url):
     # Find the option element and extract its value
     option_element = html.find('select[name="flavor"] option[selected]', first=True)
     if option_element:
-        option_value = option_element.attrs['value']
-        print(f'Option value: {option_value}')
+        option_value = option_element.attrs["value"]
+        print(f"Option value: {option_value}")
     else:
-        print('Option element not found')
+        print("Option element not found")
 
     await session.close()
