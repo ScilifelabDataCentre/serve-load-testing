@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: locust
-        image: ghcr.io/scilifelabdatacentre/serve-load-testing:main-20241004-0900
+        image: ghcr.io/scilifelabdatacentre/serve-load-testing:main-20241009-0934
         ports:
         - containerPort: 8089
         envFrom:
