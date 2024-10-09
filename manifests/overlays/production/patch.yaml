@@ -24,8 +24,8 @@ spec:
   selector:
     app: locust
   ports:
-    - protocol: TCP
     - name: web
+      protocol: TCP
       port: 80
       targetPort: 8089
   type: ClusterIP

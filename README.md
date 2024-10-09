@@ -9,6 +9,7 @@ This repository contains two branches:
 - develop
 
 Make changes in the develop branch, commit and submit pull requests to merge to main.
+Regularly sync develop with main using rebase to retain a clean commit history.
 
 ## Setup for local development
 
@@ -126,7 +127,7 @@ Or using the Web UI
 
 ### To run the Classroom test plan/scenario
 
-    locust --headless -f ./tests/test_plan_classroom.py --html ./reports/locust-report-classroom.html --users 1 --run-time 30s
+    locust --headless -f ./tests/test_plan_classroom.py --html ./reports/locust-report-classroom.html --users 10 --run-time 30s
 
 ## Tests under development
 

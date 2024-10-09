@@ -26,7 +26,7 @@ class PowerNormalUser(PowerBaseUser):
 
 
 class AppViewerNormalUser(AppViewerUser):
-    """Implements the VisitingBaseUser user type."""
+    """Implements the AppViewerUser user type."""
 
     user_type = "AppViewerNormalUser"
     weight = 2
