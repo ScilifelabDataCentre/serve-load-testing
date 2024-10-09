@@ -127,7 +127,7 @@ Or using the Web UI
 
 ### To run the Classroom test plan/scenario
 
-    locust --headless -f ./tests/test_plan_classroom.py --html ./reports/locust-report-classroom.html --users 1 --run-time 30s
+    locust --headless -f ./tests/test_plan_classroom.py --html ./reports/locust-report-classroom.html --users 10 --run-time 30s
 
 ## Tests under development
 

@@ -3,6 +3,7 @@ import os
 import warnings
 
 from locust import HttpUser, between, task
+from lxml import etree
 
 logger = logging.getLogger(__name__)
 
@@ -123,7 +124,7 @@ class VisitingBaseUser(HttpUser):
 
 class PowerBaseUser(HttpUser):
     """Base class for the power user type that logs into Serve using an existing user account,
-    then creates resources such as a project and app and finally deleted the app.
+    then creates resources such as a project and finally deletes the project.
     """
 
     abstract = True
@@ -131,6 +132,9 @@ class PowerBaseUser(HttpUser):
     user_type = ""
     user_individual_id = 0
     local_individual_id = 0
+
+    # Student type of Power users also create JupyterLab notebooks
+    is_student_user = False
 
     username = "NOT_FOUND"
     password = SERVE_LOCUST_TEST_USER_PASS
@@ -152,10 +156,12 @@ class PowerBaseUser(HttpUser):
         """Called when a User starts running."""
         self.client.verify = False  # Don't check if certificate is valid
         self.local_individual_id = PowerBaseUser.get_user_id()
-        logger.info("ONSTART new user type %s, individual %s", self.user_type, self.local_individual_id)
+        logger.info(
+            f"ONSTART new user type {self.user_type}, individual {self.local_individual_id}, \
+            IsStudent? {self.is_student_user}"
+        )
         # Use the pre-created test users for this: f"locust_test_user_{self.local_individual_id}@test.uu.net"
         self.username = f"locust_test_user_{self.local_individual_id}@test.uu.net"
-        # self.username = "locust_test_persisted_user@test.uu.net"
 
     # Tasks
 
@@ -192,7 +198,9 @@ class PowerBaseUser(HttpUser):
             )
             return
         else:
-            logger.info("Creating and deleting projects and apps as user %s", self.username)
+            logger.info(
+                f"Creating and deleting projects and apps as user {self.username}, IsStudent? {self.is_student_user}"
+            )
 
             # Create project: locust_test_project_new_<id>
             project_name = f"locust_test_project_new_{self.local_individual_id}"
@@ -202,14 +210,20 @@ class PowerBaseUser(HttpUser):
             logger.info("Opening project at URL %s", self.project_url)
             self.client.get(self.project_url)
 
-            # TODO: create JupyterLab app
+            # Student type of users also create and use JupyterLab notebooks
+            if self.is_student_user:
+                # Create JupyterLab app
+                app_name = "locust-jupyterlab-app"
+                logger.info(
+                    f"Creating a JupyterLab notebook {app_name}. This test user is a Student type of PowerUser."
+                )
+                self._create_app(project_name, app_name)
 
-            # TODO: open the app
+                # TODO: Consider also opening the app (and deleting after some time)
 
-            # TODO: delete the app
-
-            # Delete the project
-            self.delete_project()
+            else:
+                # Delete the project if the user is not a Student
+                self.delete_project()
 
         # Logout the user
         self.logout()
@@ -278,6 +292,90 @@ class PowerBaseUser(HttpUser):
                 )
                 # logger.debug(response.content)
                 response.failure("Delete project failed. Response URL does not contain /projects.")
+
+    def _create_app(self, project_name: str, app_name: str):
+        # Update the csrf token
+        app_create_url = self.project_url + "apps/create/jupyter-lab?from=overview"
+        logger.info(f"Using this URL to create a JL notebook app: {app_create_url}")
+        self.get_token(app_create_url)
+
+        # First make a dummy POST to the form to get the html and parse out the select option values
+        app_data = dict(csrfmiddlewaretoken=self.csrftoken)
+
+        html_content = ""
+        with self.client.post(
+            url=app_create_url,
+            data=app_data,
+            headers={"Referer": "foo"},
+            name="---CREATE-NEW-APP-JUPYTERLAB",
+            catch_response=True,
+        ) as response:
+            logger.debug("create JupyterLab app response.status_code = %s, %s", response.status_code, response.reason)
+            html_content = response.content
+
+        # Parse the HTML content
+        parser = etree.HTMLParser()
+        tree = etree.fromstring(html_content, parser)
+
+        # Must first get the volume, flavor, and environment values from the form
+        volume = None
+        flavor = None
+        environment = None
+
+        # Extract the form values of the option elements using XPath
+        # Flavor: <select name="flavor" class="form-control" rows="3" id="id_flavor">
+        # <option value="28" selected>2 vCPU, 4 GB RAM</option></select>
+        el_volume = tree.xpath('//select[@name="volume"]/option')
+        el_flavor = tree.xpath('//select[@name="flavor"]/option')
+        el_environment = tree.xpath('//select[@name="environment"]/option')
+
+        if el_volume:
+            volume = el_volume[0].get("value")
+        else:
+            print("Option element VOLUME not found")
+
+        if el_flavor:
+            flavor = el_flavor[0].get("value")
+        else:
+            print("Option element FLAVOR not found")
+
+        if el_environment:
+            environment = el_environment[0].get("value")
+        else:
+            print("Option element ENVIRONMENT not found")
+
+        print(f"The parsed form values to use are: volume={volume}, flavor={flavor}, environment={environment}")
+
+        # To create the app, perform a POST submit to a URL with pattern:
+        # https://serve-dev.scilifelab.se/projects/locust-appcreator-project-20241007-145428-sib/apps/create/jupyter-lab?from=overview
+
+        app_data = dict(
+            name=app_name,
+            volume=volume,
+            access="project",
+            flavor=flavor,
+            environment=environment,
+            description="Project desc",
+            csrfmiddlewaretoken=self.csrftoken,
+        )
+
+        with self.client.post(
+            url=app_create_url,
+            data=app_data,
+            headers={"Referer": "foo"},
+            name="---CREATE-NEW-APP-JUPYTERLAB",
+            catch_response=True,
+        ) as response:
+            logger.debug("create JupyterLab app response.status_code = %s, %s", response.status_code, response.reason)
+            # If succeeds then url = /projects/<project-name>/
+            logger.debug("create JupyterLab app response.url = %s", response.url)
+            if project_name in response.url and "create/jupyter-lab" not in response.url:
+                # The returned URL should NOT be back at the create app page
+                logger.info("Successfully created JupyterLab app %s", app_name)
+            else:
+                logger.warning(f"Create JupyterLab app failed. Response URL {response.url} does not indicate success.")
+                logger.debug(response.content)
+                response.failure("Create JupyterLab app failed. Response URL does not indicate success.")
 
     def login(self):
         logger.info("Login as user %s", self.username)
