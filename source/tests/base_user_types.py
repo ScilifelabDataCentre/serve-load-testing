@@ -208,7 +208,7 @@ class PowerBaseUser(HttpUser):
 
             # Open the project
             logger.info("Opening project at URL %s", self.project_url)
-            self.client.get(self.project_url)
+            self.client.get(self.project_url, name="/projects/locust_test_project_new")
 
             # Student type of users also create and use JupyterLab notebooks
             if self.is_student_user:
